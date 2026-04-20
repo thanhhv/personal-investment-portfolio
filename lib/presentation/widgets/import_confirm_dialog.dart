@@ -23,15 +23,15 @@ class ImportConfirmDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return AlertDialog(
-      title: const Text('Import Portfolio'),
+      title: Text(l.importConfirmTitle),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Found ${preview.assets.length} '
-            'asset${preview.assets.length == 1 ? '' : 's'}:',
+            l.importFoundAssets(preview.assets.length),
             style: context.textTheme.bodyMedium,
           ),
           const SizedBox(height: 8),
@@ -39,17 +39,17 @@ class ImportConfirmDialog extends StatelessWidget {
             _StatRow(
               icon: Icons.add_circle_outline,
               color: Colors.green,
-              label: '${preview.newCount} new',
+              label: l.importNewCount(preview.newCount),
             ),
           if (preview.updateCount > 0)
             _StatRow(
               icon: Icons.update,
               color: Colors.orange,
-              label: '${preview.updateCount} will be updated',
+              label: l.importUpdateCount(preview.updateCount),
             ),
           const SizedBox(height: 16),
           Text(
-            'How would you like to import?',
+            l.importHowToImport,
             style: context.textTheme.bodySmall?.copyWith(
               color: context.colorScheme.onSurface.withValues(alpha: 0.6),
             ),
@@ -59,17 +59,15 @@ class ImportConfirmDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(l.cancel),
         ),
         TextButton(
-          onPressed: () =>
-              Navigator.of(context).pop(ImportAction.merge),
-          child: const Text('Merge'),
+          onPressed: () => Navigator.of(context).pop(ImportAction.merge),
+          child: Text(l.merge),
         ),
         FilledButton(
-          onPressed: () =>
-              Navigator.of(context).pop(ImportAction.replaceAll),
-          child: const Text('Replace All'),
+          onPressed: () => Navigator.of(context).pop(ImportAction.replaceAll),
+          child: Text(l.replaceAll),
         ),
       ],
     );

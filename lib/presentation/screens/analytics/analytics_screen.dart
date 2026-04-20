@@ -10,8 +10,7 @@ import 'package:wealth_lens/core/utils/date_formatter.dart';
 import 'package:wealth_lens/domain/entities/asset.dart';
 import 'package:wealth_lens/presentation/blocs/analytics/analytics_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/analytics/analytics_state.dart';
-
-const _currency = AppCurrency.usd;
+import 'package:wealth_lens/presentation/blocs/currency/currency_cubit.dart';
 
 class AnalyticsScreen extends StatelessWidget {
   const AnalyticsScreen({super.key});
@@ -22,7 +21,7 @@ class AnalyticsScreen extends StatelessWidget {
       create: (_) => getIt<AnalyticsCubit>()..load(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Analytics'),
+          title: Text(context.l10n.analytics),
           centerTitle: false,
         ),
         body: BlocBuilder<AnalyticsCubit, AnalyticsState>(
@@ -32,7 +31,9 @@ class AnalyticsScreen extends StatelessWidget {
             }
             if (state.status == AnalyticsStatus.failure) {
               return Center(
-                child: Text(state.errorMessage ?? 'Something went wrong'),
+                child: Text(
+                  state.errorMessage ?? context.l10n.somethingWentWrong,
+                ),
               );
             }
             final data = state.data;
@@ -62,10 +63,10 @@ class _EmptyState extends StatelessWidget {
               color: context.colorScheme.onSurface.withValues(alpha: 0.3),
             ),
             const SizedBox(height: 16),
-            Text('No data yet', style: context.textTheme.headlineSmall),
+            Text(context.l10n.noDataYet, style: context.textTheme.headlineSmall),
             const SizedBox(height: 8),
             Text(
-              'Add assets and transactions to see analytics',
+              context.l10n.addAssetsToSeeAnalytics,
               style: context.textTheme.bodyMedium?.copyWith(
                 color: context.colorScheme.onSurface.withValues(alpha: 0.55),
               ),
@@ -90,33 +91,25 @@ class _AnalyticsBody extends StatelessWidget {
 
     return ListView(
       children: [
-        // ── Summary Card ────────────────────────────────────────────────────
         _SummaryCard(data: data, plColor: plColor, isProfit: isProfit),
-
-        // ── Portfolio Performance Chart ──────────────────────────────────────
         if (data.timeline.length >= 2)
           _PerformanceChart(data: data),
-
-        // ── Rankings ────────────────────────────────────────────────────────
         if (data.rankedByPerformance.length >= 2) ...[
           _RankingSection(
-            title: 'Best Performing',
+            title: context.l10n.bestPerforming,
             assets: data.rankedByPerformance.take(3).toList(),
             positive: true,
           ),
           _RankingSection(
-            title: 'Worst Performing',
+            title: context.l10n.worstPerforming,
             assets: data.rankedByPerformance.reversed.take(3).toList(),
             positive: false,
           ),
         ],
-
-        // ── Category Breakdown ────────────────────────────────────────────────
         _CategoryBreakdownCard(
           breakdown: data.categoryBreakdown,
           totalValue: data.totalValue,
         ),
-
         const SizedBox(height: 32),
       ],
     );
@@ -140,6 +133,9 @@ class _SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
+    final currency = context.read<CurrencyCubit>().state;
+
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       padding: const EdgeInsets.all(24),
@@ -158,30 +154,31 @@ class _SummaryCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Portfolio Performance',
+            l.portfolioPerformance,
             style: context.textTheme.bodyMedium?.copyWith(
               color: Colors.white.withValues(alpha: 0.8),
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            CurrencyFormatter.format(data.totalValue, _currency),
+            CurrencyFormatter.format(data.totalValue, currency),
             style: AppTextStyles.portfolioTotal.copyWith(color: Colors.white),
           ),
           const SizedBox(height: 12),
           Row(
             children: [
               _SummaryChip(
-                label: 'Invested',
+                label: l.invested,
                 value: CurrencyFormatter.formatCompact(
                   data.totalInvested,
-                  _currency,
+                  currency,
                 ),
               ),
               const SizedBox(width: 8),
               _SummaryChip(
-                label: isProfit ? 'Gain' : 'Loss',
-                value: '${CurrencyFormatter.formatCompact(data.totalProfitLoss.abs(), _currency)}'
+                label: isProfit ? l.gain : l.loss,
+                value:
+                    '${CurrencyFormatter.formatCompact(data.totalProfitLoss.abs(), currency)}'
                     ' (${CurrencyFormatter.formatPercent(data.totalProfitLossPercent)})',
                 icon: isProfit
                     ? Icons.trending_up_rounded
@@ -255,6 +252,8 @@ class _PerformanceChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
+    final currency = context.read<CurrencyCubit>().state;
     final timeline = data.timeline;
     final investedSpots = timeline.asMap().entries.map((e) {
       return FlSpot(e.key.toDouble(), e.value.totalInvested);
@@ -272,15 +271,15 @@ class _PerformanceChart extends StatelessWidget {
     final padding = (maxY - minY).abs() * 0.15;
 
     return _ChartCard(
-      title: 'Invested vs. Current Value',
+      title: l.investedVsCurrentValue,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              _LegendDot(color: AppColors.primary, label: 'Value'),
-              SizedBox(width: 12),
-              _LegendDot(color: AppColors.neutral, label: 'Invested'),
+              _LegendDot(color: AppColors.primary, label: l.value),
+              const SizedBox(width: 12),
+              _LegendDot(color: AppColors.neutral, label: l.invested),
             ],
           ),
           const SizedBox(height: 12),
@@ -332,7 +331,7 @@ class _PerformanceChart extends StatelessWidget {
                           idx < timeline.length ? timeline[idx] : null;
                       return LineTooltipItem(
                         point != null
-                            ? CurrencyFormatter.format(s.y, _currency)
+                            ? CurrencyFormatter.format(s.y, currency)
                             : '',
                         context.textTheme.labelSmall!
                             .copyWith(color: Colors.white),
@@ -341,7 +340,6 @@ class _PerformanceChart extends StatelessWidget {
                   ),
                 ),
                 lineBarsData: [
-                  // Invested — dashed neutral
                   LineChartBarData(
                     spots: investedSpots,
                     isCurved: true,
@@ -350,7 +348,6 @@ class _PerformanceChart extends StatelessWidget {
                     dashArray: [6, 3],
                     dotData: const FlDotData(show: false),
                   ),
-                  // Current value — solid primary with fill
                   LineChartBarData(
                     spots: valueSpots,
                     isCurved: true,
@@ -412,6 +409,8 @@ class _RankingSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currency = context.read<CurrencyCubit>().state;
+
     return _ChartCard(
       title: title,
       child: Column(
@@ -447,7 +446,7 @@ class _RankingSection extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
-                        CurrencyFormatter.format(asset.currentValue, _currency),
+                        CurrencyFormatter.format(asset.currentValue, currency),
                         style: context.textTheme.bodySmall?.copyWith(
                           color: context.colorScheme.onSurface
                               .withValues(alpha: 0.55),
@@ -492,11 +491,12 @@ class _CategoryBreakdownCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
+
     return _ChartCard(
-      title: 'Category Breakdown',
+      title: l.categoryBreakdown,
       child: Column(
         children: [
-          // Table header
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: Row(
@@ -504,7 +504,7 @@ class _CategoryBreakdownCard extends StatelessWidget {
                 Expanded(
                   flex: 4,
                   child: Text(
-                    'Category',
+                    l.assetCategory,
                     style: context.textTheme.labelSmall?.copyWith(
                       color:
                           context.colorScheme.onSurface.withValues(alpha: 0.5),
@@ -514,7 +514,7 @@ class _CategoryBreakdownCard extends StatelessWidget {
                 Expanded(
                   flex: 3,
                   child: Text(
-                    'Value',
+                    l.value,
                     style: context.textTheme.labelSmall?.copyWith(
                       color:
                           context.colorScheme.onSurface.withValues(alpha: 0.5),
@@ -525,7 +525,7 @@ class _CategoryBreakdownCard extends StatelessWidget {
                 Expanded(
                   flex: 2,
                   child: Text(
-                    'Alloc.',
+                    l.allocation,
                     style: context.textTheme.labelSmall?.copyWith(
                       color:
                           context.colorScheme.onSurface.withValues(alpha: 0.5),
@@ -536,7 +536,7 @@ class _CategoryBreakdownCard extends StatelessWidget {
                 Expanded(
                   flex: 2,
                   child: Text(
-                    'P&L',
+                    l.pAndL,
                     style: context.textTheme.labelSmall?.copyWith(
                       color:
                           context.colorScheme.onSurface.withValues(alpha: 0.5),
@@ -564,6 +564,7 @@ class _CategoryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currency = context.read<CurrencyCubit>().state;
     final isProfit = item.profitLoss >= 0;
     final plColor = isProfit ? AppColors.profit : AppColors.loss;
 
@@ -602,7 +603,7 @@ class _CategoryRow extends StatelessWidget {
           Expanded(
             flex: 3,
             child: Text(
-              CurrencyFormatter.formatCompact(item.totalValue, _currency),
+              CurrencyFormatter.formatCompact(item.totalValue, currency),
               style: context.textTheme.bodySmall,
               textAlign: TextAlign.end,
             ),

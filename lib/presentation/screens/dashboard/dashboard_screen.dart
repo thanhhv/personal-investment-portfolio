@@ -2,11 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:wealth_lens/core/di/injection.dart';
 import 'package:wealth_lens/core/extensions/context_extensions.dart';
 import 'package:wealth_lens/core/theme/app_colors.dart';
-import 'package:wealth_lens/core/utils/currency_formatter.dart';
+import 'package:wealth_lens/presentation/blocs/currency/currency_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/dashboard/dashboard_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/dashboard/dashboard_state.dart';
 import 'package:wealth_lens/presentation/routes/app_router.dart';
@@ -24,7 +25,7 @@ class DashboardScreen extends StatelessWidget {
       create: (_) => getIt<DashboardCubit>()..load(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('WealthLens'),
+          title: Text(context.l10n.appName),
           centerTitle: false,
           actions: [
             IconButton(
@@ -41,20 +42,22 @@ class DashboardScreen extends StatelessWidget {
           builder: (context, state) {
             if (state.isLoading) return const _ShimmerList();
             if (state.status == DashboardStatus.failure) {
-              return _ErrorView(message: state.errorMessage ?? 'Unknown error');
+              return _ErrorView(message: state.errorMessage ?? context.l10n.somethingWentWrong);
             }
             if (state.isEmpty) return const _EmptyState();
             return _AssetListView(state: state);
           },
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            await context.push(AppRoutes.addAsset);
-            if (context.mounted) {
-              unawaited(context.read<DashboardCubit>().load());
-            }
-          },
-          child: const Icon(Icons.add),
+        floatingActionButton: Builder(
+          builder: (context) => FloatingActionButton(
+            onPressed: () async {
+              await context.push(AppRoutes.addAsset);
+              if (context.mounted) {
+                unawaited(context.read<DashboardCubit>().load());
+              }
+            },
+            child: const Icon(Icons.add),
+          ),
         ),
       ),
     );
@@ -97,12 +100,12 @@ class _EmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'No assets yet',
+              context.l10n.noAssetsYet,
               style: context.textTheme.headlineSmall,
             ),
             const SizedBox(height: 8),
             Text(
-              'Tap the + button to add your first investment',
+              context.l10n.noAssetsMessage,
               style: context.textTheme.bodyMedium?.copyWith(
                 color: context.colorScheme.onSurface.withValues(alpha: 0.55),
               ),
@@ -134,7 +137,10 @@ class _ErrorView extends StatelessWidget {
               color: AppColors.loss.withValues(alpha: 0.7),
             ),
             const SizedBox(height: 16),
-            Text('Something went wrong', style: context.textTheme.headlineSmall),
+            Text(
+              context.l10n.somethingWentWrong,
+              style: context.textTheme.headlineSmall,
+            ),
             const SizedBox(height: 8),
             Text(
               message,
@@ -145,9 +151,8 @@ class _ErrorView extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             FilledButton(
-              onPressed: () =>
-                  context.read<DashboardCubit>().load(),
-              child: const Text('Retry'),
+              onPressed: () => context.read<DashboardCubit>().load(),
+              child: Text(context.l10n.retry),
             ),
           ],
         ),
@@ -161,53 +166,63 @@ class _AssetListView extends StatelessWidget {
 
   final DashboardState state;
 
-  static const _currency = AppCurrency.usd;
-
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      slivers: [
-        SliverToBoxAdapter(
-          child: PortfolioHeader(
-            totalValue: state.totalValue,
-            totalInvested: state.totalInvested,
-            profitLoss: state.totalProfitLoss,
-            profitLossPercent: state.totalProfitLossPercent,
-            currency: _currency,
-          ),
-        ),
-        if (state.assets.length > 1)
+    final currency = context.read<CurrencyCubit>().state;
+    return AnimationLimiter(
+      child: CustomScrollView(
+        slivers: [
           SliverToBoxAdapter(
-            child: CategoryDonutChart(assets: state.assets),
-          ),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-            child: Text(
-              'My Assets',
-              style: context.textTheme.headlineSmall,
+            child: PortfolioHeader(
+              totalValue: state.totalValue,
+              totalInvested: state.totalInvested,
+              profitLoss: state.totalProfitLoss,
+              profitLossPercent: state.totalProfitLossPercent,
+              currency: currency,
             ),
           ),
-        ),
-        SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) => AssetCard(
-              asset: state.assets[index],
-              currency: _currency,
-              onTap: () async {
-                await context.push(
-                  AppRoutes.assetDetailPath(state.assets[index].id),
-                );
-                if (context.mounted) {
-                  unawaited(context.read<DashboardCubit>().load());
-                }
-              },
+          if (state.assets.length > 1)
+            SliverToBoxAdapter(
+              child: CategoryDonutChart(assets: state.assets),
             ),
-            childCount: state.assets.length,
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+              child: Text(
+                context.l10n.myAssets,
+                style: context.textTheme.headlineSmall,
+              ),
+            ),
           ),
-        ),
-        const SliverToBoxAdapter(child: SizedBox(height: 100)),
-      ],
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) => AnimationConfiguration.staggeredList(
+                position: index,
+                duration: const Duration(milliseconds: 375),
+                child: SlideAnimation(
+                  verticalOffset: 40,
+                  child: FadeInAnimation(
+                    child: AssetCard(
+                      asset: state.assets[index],
+                      currency: currency,
+                      onTap: () async {
+                        await context.push(
+                          AppRoutes.assetDetailPath(state.assets[index].id),
+                        );
+                        if (context.mounted) {
+                          unawaited(context.read<DashboardCubit>().load());
+                        }
+                      },
+                    ),
+                  ),
+                ),
+              ),
+              childCount: state.assets.length,
+            ),
+          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 100)),
+        ],
+      ),
     );
   }
 }

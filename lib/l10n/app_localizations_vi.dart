@@ -239,4 +239,177 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get profitLossByCategory => 'Lợi nhuận / Lỗ theo danh mục';
+
+  @override
+  String get myAssets => 'Tài sản của tôi';
+
+  @override
+  String get somethingWentWrong => 'Đã xảy ra lỗi';
+
+  @override
+  String get retry => 'Thử lại';
+
+  @override
+  String get assetNotFound => 'Không tìm thấy tài sản';
+
+  @override
+  String get fieldRequired => 'Bắt buộc';
+
+  @override
+  String get dateLabel => 'Ngày';
+
+  @override
+  String get investedVsCurrentValue => 'Đầu tư và giá trị hiện tại';
+
+  @override
+  String get invested => 'Đầu tư';
+
+  @override
+  String get value => 'Giá trị';
+
+  @override
+  String get gain => 'Lãi';
+
+  @override
+  String get loss => 'Lỗ';
+
+  @override
+  String get pAndL => 'L/L';
+
+  @override
+  String get allocation => 'Tỷ trọng';
+
+  @override
+  String get portfolioPerformance => 'Hiệu suất danh mục';
+
+  @override
+  String get noDataYet => 'Chưa có dữ liệu';
+
+  @override
+  String get addAssetsToSeeAnalytics =>
+      'Thêm tài sản và giao dịch để xem phân tích';
+
+  @override
+  String get breakdown => 'Phân tích';
+
+  @override
+  String get priceHistory => 'Lịch sử giá';
+
+  @override
+  String get viewAll => 'Xem tất cả';
+
+  @override
+  String get data => 'Dữ liệu';
+
+  @override
+  String get appearance => 'Giao diện';
+
+  @override
+  String get exportSubtitle => 'Chia sẻ dạng .wealthlens.json';
+
+  @override
+  String get importSubtitle => 'Tải từ file .wealthlens.json';
+
+  @override
+  String importFoundAssets(int count) {
+    return 'Tìm thấy $count tài sản';
+  }
+
+  @override
+  String importNewCount(int count) {
+    return '$count mới';
+  }
+
+  @override
+  String importUpdateCount(int count) {
+    return '$count sẽ được cập nhật';
+  }
+
+  @override
+  String get importHowToImport => 'Bạn muốn nhập theo cách nào?';
+
+  @override
+  String get merge => 'Gộp';
+
+  @override
+  String get replaceAll => 'Thay thế tất cả';
+
+  @override
+  String get basicInfo => 'Thông tin cơ bản';
+
+  @override
+  String get initialInvestment => 'Đầu tư ban đầu';
+
+  @override
+  String get additional => 'Thêm thông tin';
+
+  @override
+  String get quantityOptional => 'Số lượng (tùy chọn)';
+
+  @override
+  String get pricePerUnitOptional => 'Giá mỗi đơn vị (tùy chọn)';
+
+  @override
+  String get currentValueOptional => 'Giá trị hiện tại (tùy chọn)';
+
+  @override
+  String get leaveBlankHint => 'Để trống nếu bằng số tiền đầu tư';
+
+  @override
+  String get notesOptional => 'Ghi chú (tùy chọn)';
+
+  @override
+  String get tagsOptional => 'Thẻ (tùy chọn)';
+
+  @override
+  String get addTagHint => 'Thêm thẻ...';
+
+  @override
+  String get pleaseSelectCategory => 'Vui lòng chọn danh mục';
+
+  @override
+  String get amountRequired => 'Số tiền *';
+
+  @override
+  String get noteOptional => 'Ghi chú (tùy chọn)';
+
+  @override
+  String get deleteTransaction => 'Xóa giao dịch';
+
+  @override
+  String get cannotBeUndone => 'Hành động này không thể hoàn tác.';
+
+  @override
+  String get skip => 'Bỏ qua';
+
+  @override
+  String get next => 'Tiếp theo';
+
+  @override
+  String get getStarted => 'Bắt đầu';
+
+  @override
+  String get yourInvestmentsAtAGlance =>
+      'Đầu tư của bạn, một cái nhìn tổng quan';
+
+  @override
+  String get onboarding1Title => 'Theo dõi tất cả';
+
+  @override
+  String get onboarding1Subtitle =>
+      'Theo dõi tất cả khoản đầu tư tại một nơi — tiền mã hóa, cổ phiếu, vàng, bất động sản và nhiều hơn nữa.';
+
+  @override
+  String get onboarding2Title => 'Trực quan hóa tăng trưởng';
+
+  @override
+  String get onboarding2Subtitle =>
+      'Biểu đồ đẹp mắt hiển thị hiệu suất danh mục và phân bổ tài sản của bạn.';
+
+  @override
+  String get onboarding3Title => 'Kiểm soát hoàn toàn';
+
+  @override
+  String get onboarding3Subtitle =>
+      'Dữ liệu lưu trữ trên thiết bị của bạn. Xuất, nhập và quản lý tài sản với đầy đủ bảo mật.';
 }

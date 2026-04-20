@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:wealth_lens/domain/usecases/export_portfolio_usecase.dart';
 import 'package:wealth_lens/domain/usecases/import_portfolio_usecase.dart';
 import 'package:wealth_lens/presentation/blocs/settings/settings_state.dart';
@@ -11,39 +12,42 @@ class SettingsCubit extends Cubit<SettingsState> {
   final ExportPortfolioUseCase _export;
   final ImportPortfolioUseCase _import;
 
+  Future<void> loadVersion() async {
+    final info = await PackageInfo.fromPlatform();
+    emit(state.copyWith(appVersion: info.version));
+  }
+
   Future<void> exportPortfolio() async {
-    emit(const SettingsState(status: SettingsStatus.busy));
+    emit(state.copyWith(status: SettingsStatus.busy));
     final result = await _export();
     result.fold(
       (f) => emit(
         SettingsState(
           status: SettingsStatus.failure,
           errorMessage: f.message,
+          appVersion: state.appVersion,
         ),
       ),
-      (_) => emit(
-        const SettingsState(
-          status: SettingsStatus.success,
-          successMessage: 'Portfolio exported successfully',
-        ),
-      ),
+      (_) => emit(state.withStatus(SettingsStatus.exportSuccess)),
     );
   }
 
   Future<void> pickImportFile() async {
-    emit(const SettingsState(status: SettingsStatus.busy));
+    emit(state.copyWith(status: SettingsStatus.busy));
     final result = await _import.pickAndPreview();
     result.fold(
       (f) => emit(
         SettingsState(
           status: SettingsStatus.failure,
           errorMessage: f.message,
+          appVersion: state.appVersion,
         ),
       ),
       (preview) => emit(
         SettingsState(
           status: SettingsStatus.previewReady,
           importPreview: preview,
+          appVersion: state.appVersion,
         ),
       ),
     );
@@ -52,25 +56,21 @@ class SettingsCubit extends Cubit<SettingsState> {
   Future<void> confirmImport({required bool merge}) async {
     final preview = state.importPreview;
     if (preview == null) return;
-    emit(const SettingsState(status: SettingsStatus.busy));
+    emit(state.copyWith(status: SettingsStatus.busy));
     final result = await _import.confirm(preview, merge: merge);
     result.fold(
       (f) => emit(
         SettingsState(
           status: SettingsStatus.failure,
           errorMessage: f.message,
+          appVersion: state.appVersion,
         ),
       ),
-      (_) => emit(
-        const SettingsState(
-          status: SettingsStatus.success,
-          successMessage: 'Portfolio imported successfully',
-        ),
-      ),
+      (_) => emit(state.withStatus(SettingsStatus.importSuccess)),
     );
   }
 
-  void dismissPreview() => emit(const SettingsState());
+  void dismissPreview() => emit(state.withStatus(SettingsStatus.idle));
 
-  void resetStatus() => emit(const SettingsState());
+  void resetStatus() => emit(state.withStatus(SettingsStatus.idle));
 }

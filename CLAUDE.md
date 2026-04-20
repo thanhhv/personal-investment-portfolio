@@ -83,7 +83,7 @@ lib/
 │       ├── splash/splash_screen.dart        # Scale+fade animation, auto-navigates after 2.5s
 │       ├── onboarding/onboarding_screen.dart # 3-slide PageView, sets hasSeenOnboarding flag
 │       ├── dashboard/dashboard_screen.dart  # Full dashboard — header, donut chart, asset list
-│       └── settings/settings_screen.dart   # Phase 6 stub
+│       └── settings/settings_screen.dart   # Theme/language/currency toggles, export/import, version
 ├── l10n/
 │   ├── app_en.arb                   # English strings (40+ keys)
 │   ├── app_vi.arb                   # Vietnamese strings
@@ -282,7 +282,7 @@ Hive box requires async init. `HiveDatasource` is registered manually in `main()
 - `lib/presentation/screens/dashboard/dashboard_screen.dart` — Full `CustomScrollView` with sliver header, donut, asset list; loading/empty/error states
 
 **Key decisions:**
-- Currency hardcoded to `AppCurrency.usd` in `_AssetListView` for Phase 2 — Phase 6 reads from settings
+- Currency from `CurrencyCubit` in all screens — `context.read<CurrencyCubit>().state`
 - Donut chart hidden when 0 or 1 asset (not meaningful with single slice)
 - `DashboardCubit` is `@injectable` (factory) — provided via `BlocProvider(create: (_) => getIt<DashboardCubit>()..load())`
 - `AssetCategory.label` getter added to `asset_categories.dart` for display names (e.g. `realEstate` → `'Real Estate'`)
@@ -344,29 +344,26 @@ Hive box requires async init. `HiveDatasource` is registered manually in `main()
 
 ---
 
-### 🔲 Phase 6 — i18n & Polish
+### ✅ Phase 6 — i18n & Polish (DONE)
 
-**SettingsScreen** (replace stub):
-- Language toggle (EN/VI) → update `AppLocalizations` locale
-- Currency (VND/USD) → `CurrencyFormatter`
-- Theme (Light/Dark/System) → `ThemeCubit.setTheme()`
-- Export / Import buttons
-- About section with version from `package_info_plus` (add dep)
+**What was built:**
 
-**LocaleCubit** — persists `Locale` to SharedPreferences key `AppConstants.localeKey`
+- `lib/presentation/blocs/locale/locale_cubit.dart` — `LocaleCubit` emits `Locale`, persists to `AppConstants.localeKey`
+- `lib/presentation/blocs/currency/currency_cubit.dart` — `CurrencyCubit` emits `AppCurrency`, persists to `AppConstants.currencyKey`
+- `lib/presentation/blocs/settings/settings_state.dart` + `settings_cubit.dart` — `@injectable`, wraps export/import use cases + `PackageInfo.fromPlatform()`; statuses: idle/busy/previewReady/exportSuccess/importSuccess/failure
+- `lib/presentation/screens/settings/settings_screen.dart` — Full settings: theme/language/currency toggles via `SegmentedButton`, export/import, version display
+- `lib/presentation/widgets/import_confirm_dialog.dart` — Shows import preview (new/update counts), returns `ImportAction.merge` or `ImportAction.replaceAll`
+- `lib/app.dart` — `MultiBlocProvider` providing ThemeCubit + LocaleCubit + CurrencyCubit; `MaterialApp.router` uses `locale` from `LocaleCubit`
+- `lib/presentation/widgets/portfolio_header.dart` — `TweenAnimationBuilder<double>` counter animation (0→totalValue, 800ms)
+- `lib/presentation/screens/dashboard/dashboard_screen.dart` — `AnimationLimiter` + staggered list (`flutter_staggered_animations`), currency from `CurrencyCubit`
+- All screens/widgets i18n-swept: `app_en.arb` + `app_vi.arb` with 90+ keys
 
-**i18n sweep** — replace ALL hardcoded strings in every screen/widget with `context.l10n.*` calls.
-
-**Animations sweep:**
-- Hero transitions: `assetId` as hero tag on card → detail screen header
-- Staggered list: `AnimationLimiter` + `AnimationConfiguration.staggeredList` (add `flutter_staggered_animations`)
-- Chart draw-on: already handled by fl_chart's default animation
-- Number counter on dashboard: use `TweenAnimationBuilder<double>` on total value
-
-**Performance:**
-- Add `const` constructors everywhere possible
-- `Isar`-style indexing equivalent in Hive: sort/filter in memory (assets count is small)
-- Profile with Flutter DevTools — target 60fps scroll
+**Key decisions:**
+- `LocaleCubit` and `CurrencyCubit` are NOT `@injectable` (no DI-accessible SharedPreferences at registration time) — provided directly in `app.dart`
+- Currency in screens: `context.read<CurrencyCubit>().state` (not watch) — screens rebuild on nav pop
+- `SettingsCubit` uses separate `exportSuccess`/`importSuccess` statuses (no `successMessage` in state); UI maps status → l10n string
+- `ImportAction` enum is public (not private) to avoid `library_private_types_in_public_api` lint
+- `pubspec.yaml` added: `flutter_staggered_animations: ^1.1.1`, `package_info_plus: ^8.0.0`
 
 ---
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wealth_lens/core/constants/app_constants.dart';
+import 'package:wealth_lens/core/extensions/context_extensions.dart';
 import 'package:wealth_lens/presentation/routes/app_router.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -87,7 +88,7 @@ class _SplashScreenState extends State<SplashScreen>
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  'WealthLens',
+                  context.l10n.appName,
                   style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                         color: colorScheme.onSurface,
                         fontWeight: FontWeight.w700,
@@ -95,7 +96,7 @@ class _SplashScreenState extends State<SplashScreen>
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Your investments, at a glance',
+                  context.l10n.yourInvestmentsAtAGlance,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: colorScheme.onSurface.withValues(alpha: 0.6),
                       ),

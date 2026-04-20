@@ -62,7 +62,7 @@ class CategoryDonutChart extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Breakdown', style: context.textTheme.headlineSmall),
+          Text(context.l10n.breakdown, style: context.textTheme.headlineSmall),
           const SizedBox(height: 16),
           Row(
             children: [

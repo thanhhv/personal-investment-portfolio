@@ -173,32 +173,35 @@ class _AddEditAssetViewState extends State<_AddEditAssetView> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return BlocListener<AssetFormCubit, AssetFormState>(
       listener: (context, state) {
         if (state.isSaved) context.pop();
         if (state.status == AssetFormStatus.failure) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.errorMessage ?? 'Error saving asset')),
+            SnackBar(
+              content: Text(state.errorMessage ?? l.somethingWentWrong),
+            ),
           );
         }
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(widget.isEdit ? 'Edit Asset' : 'Add Asset'),
+          title: Text(widget.isEdit ? l.editAsset : l.addAsset),
         ),
         body: Form(
           key: _formKey,
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
             children: [
-              const _SectionLabel('Basic Info'),
+              _SectionLabel(l.basicInfo),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _nameCtrl,
-                decoration: const InputDecoration(labelText: 'Asset Name *'),
+                decoration: InputDecoration(labelText: '${l.assetName} *'),
                 textCapitalization: TextCapitalization.words,
                 validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Required' : null,
+                    (v == null || v.trim().isEmpty) ? l.fieldRequired : null,
               ),
               const SizedBox(height: 12),
               _CategoryDropdown(
@@ -208,24 +211,25 @@ class _AddEditAssetViewState extends State<_AddEditAssetView> {
               ),
               if (!widget.isEdit) ...[
                 const SizedBox(height: 20),
-                const _SectionLabel('Initial Investment'),
+                _SectionLabel(l.initialInvestment),
                 const SizedBox(height: 8),
                 _DatePickerRow(
-                  label: 'Purchase Date *',
+                  label: '${l.purchaseDate} *',
                   date: _purchaseDate,
                   onTap: _pickDate,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _investedCtrl,
-                  decoration:
-                      const InputDecoration(labelText: 'Total Invested *'),
+                  decoration: InputDecoration(
+                    labelText: '${l.totalInvestedAmount} *',
+                  ),
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
                   validator: (v) {
-                    if (v == null || v.trim().isEmpty) return 'Required';
+                    if (v == null || v.trim().isEmpty) return l.fieldRequired;
                     if (!v.trim().isValidPositiveNumber) {
-                      return 'Must be a positive number';
+                      return l.validationPositiveNumber;
                     }
                     return null;
                   },
@@ -233,14 +237,13 @@ class _AddEditAssetViewState extends State<_AddEditAssetView> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _quantityCtrl,
-                  decoration:
-                      const InputDecoration(labelText: 'Quantity (optional)'),
+                  decoration: InputDecoration(labelText: l.quantityOptional),
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) return null;
                     if (!v.trim().isValidPositiveNumber) {
-                      return 'Must be a positive number';
+                      return l.validationPositiveNumber;
                     }
                     return null;
                   },
@@ -248,15 +251,15 @@ class _AddEditAssetViewState extends State<_AddEditAssetView> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _ppuCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Price per Unit (optional)',
+                  decoration: InputDecoration(
+                    labelText: l.pricePerUnitOptional,
                   ),
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) return null;
                     if (!v.trim().isValidPositiveNumber) {
-                      return 'Must be a positive number';
+                      return l.validationPositiveNumber;
                     }
                     return null;
                   },
@@ -264,27 +267,27 @@ class _AddEditAssetViewState extends State<_AddEditAssetView> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _currentValueCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Current Value (optional)',
-                    helperText: 'Leave blank if same as invested',
+                  decoration: InputDecoration(
+                    labelText: l.currentValueOptional,
+                    helperText: l.leaveBlankHint,
                   ),
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) return null;
                     if (!v.trim().isValidPositiveNumber) {
-                      return 'Must be a positive number';
+                      return l.validationPositiveNumber;
                     }
                     return null;
                   },
                 ),
               ],
               const SizedBox(height: 20),
-              const _SectionLabel('Additional'),
+              _SectionLabel(l.additional),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _notesCtrl,
-                decoration: const InputDecoration(labelText: 'Notes (optional)'),
+                decoration: InputDecoration(labelText: l.notesOptional),
                 maxLines: 3,
               ),
               const SizedBox(height: 12),
@@ -308,7 +311,7 @@ class _AddEditAssetViewState extends State<_AddEditAssetView> {
                               color: Colors.white,
                             ),
                           )
-                        : const Text('Save'),
+                        : Text(l.save),
                   );
                 },
               ),
@@ -320,10 +323,11 @@ class _AddEditAssetViewState extends State<_AddEditAssetView> {
   }
 
   void _onSave() {
+    final l = context.l10n;
     if (_formKey.currentState!.validate()) {
       if (_category == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please select a category')),
+          SnackBar(content: Text(l.pleaseSelectCategory)),
         );
         return;
       }
@@ -361,9 +365,10 @@ class _CategoryDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return DropdownButtonFormField<AssetCategory>(
       initialValue: initialValue,
-      decoration: const InputDecoration(labelText: 'Category *'),
+      decoration: InputDecoration(labelText: '${l.assetCategory} *'),
       items: AssetCategory.values.map((c) {
         return DropdownMenuItem(
           value: c,
@@ -377,7 +382,7 @@ class _CategoryDropdown extends StatelessWidget {
         );
       }).toList(),
       onChanged: onChanged,
-      validator: (v) => v == null ? 'Required' : null,
+      validator: (v) => v == null ? l.fieldRequired : null,
     );
   }
 }
@@ -428,10 +433,11 @@ class _TagsInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Tags (optional)', style: context.textTheme.bodySmall),
+        Text(l.tagsOptional, style: context.textTheme.bodySmall),
         const SizedBox(height: 6),
         Wrap(
           spacing: 6,
@@ -452,8 +458,8 @@ class _TagsInput extends StatelessWidget {
             Expanded(
               child: TextField(
                 controller: controller,
-                decoration: const InputDecoration(
-                  hintText: 'Add tag...',
+                decoration: InputDecoration(
+                  hintText: l.addTagHint,
                   isDense: true,
                 ),
                 onSubmitted: onAdd,

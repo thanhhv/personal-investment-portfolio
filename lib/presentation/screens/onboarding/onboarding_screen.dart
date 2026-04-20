@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wealth_lens/core/constants/app_constants.dart';
+import 'package:wealth_lens/core/extensions/context_extensions.dart';
 import 'package:wealth_lens/core/theme/app_colors.dart';
 import 'package:wealth_lens/presentation/routes/app_router.dart';
 
@@ -15,27 +16,7 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
-
-  static const _pages = [
-    _OnboardingPage(
-      icon: Icons.track_changes,
-      title: 'Track Everything',
-      subtitle:
-          'Monitor all your investments in one place — crypto, stocks, gold, real estate, and more.',
-    ),
-    _OnboardingPage(
-      icon: Icons.insert_chart_outlined,
-      title: 'Visualize Growth',
-      subtitle:
-          'Beautiful charts show your portfolio performance and asset allocation at a glance.',
-    ),
-    _OnboardingPage(
-      icon: Icons.tune,
-      title: 'Stay in Control',
-      subtitle:
-          'Your data stays on your device. Export, import, and manage your wealth with full privacy.',
-    ),
-  ];
+  int get _pageCount => 3;
 
   Future<void> _complete() async {
     final prefs = await SharedPreferences.getInstance();
@@ -52,8 +33,27 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final colorScheme = Theme.of(context).colorScheme;
-    final isLast = _currentPage == _pages.length - 1;
+    final isLast = _currentPage == _pageCount - 1;
+
+    final pages = [
+      _OnboardingPage(
+        icon: Icons.track_changes,
+        title: l.onboarding1Title,
+        subtitle: l.onboarding1Subtitle,
+      ),
+      _OnboardingPage(
+        icon: Icons.insert_chart_outlined,
+        title: l.onboarding2Title,
+        subtitle: l.onboarding2Subtitle,
+      ),
+      _OnboardingPage(
+        icon: Icons.tune,
+        title: l.onboarding3Title,
+        subtitle: l.onboarding3Subtitle,
+      ),
+    ];
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -64,15 +64,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               alignment: Alignment.topRight,
               child: TextButton(
                 onPressed: _complete,
-                child: const Text('Skip'),
+                child: Text(l.skip),
               ),
             ),
             Expanded(
               child: PageView.builder(
                 controller: _pageController,
-                itemCount: _pages.length,
+                itemCount: pages.length,
                 onPageChanged: (i) => setState(() => _currentPage = i),
-                itemBuilder: (context, i) => _pages[i].build(context),
+                itemBuilder: (context, i) => pages[i].build(context),
               ),
             ),
             Padding(
@@ -82,7 +82,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(
-                      _pages.length,
+                      pages.length,
                       (i) => AnimatedContainer(
                         duration: const Duration(milliseconds: 250),
                         margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -107,7 +107,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 duration: const Duration(milliseconds: 300),
                                 curve: Curves.easeInOut,
                               ),
-                      child: Text(isLast ? 'Get Started' : 'Next'),
+                      child: Text(isLast ? l.getStarted : l.next),
                     ),
                   ),
                 ],

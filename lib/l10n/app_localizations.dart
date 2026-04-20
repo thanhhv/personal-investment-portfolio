@@ -553,6 +553,330 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Profit / Loss by Category'**
   String get profitLossByCategory;
+
+  /// No description provided for @myAssets.
+  ///
+  /// In en, this message translates to:
+  /// **'My Assets'**
+  String get myAssets;
+
+  /// No description provided for @somethingWentWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong'**
+  String get somethingWentWrong;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @assetNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Asset not found'**
+  String get assetNotFound;
+
+  /// No description provided for @fieldRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get fieldRequired;
+
+  /// No description provided for @dateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get dateLabel;
+
+  /// No description provided for @investedVsCurrentValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Invested vs. Current Value'**
+  String get investedVsCurrentValue;
+
+  /// No description provided for @invested.
+  ///
+  /// In en, this message translates to:
+  /// **'Invested'**
+  String get invested;
+
+  /// No description provided for @value.
+  ///
+  /// In en, this message translates to:
+  /// **'Value'**
+  String get value;
+
+  /// No description provided for @gain.
+  ///
+  /// In en, this message translates to:
+  /// **'Gain'**
+  String get gain;
+
+  /// No description provided for @loss.
+  ///
+  /// In en, this message translates to:
+  /// **'Loss'**
+  String get loss;
+
+  /// No description provided for @pAndL.
+  ///
+  /// In en, this message translates to:
+  /// **'P&L'**
+  String get pAndL;
+
+  /// No description provided for @allocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Alloc.'**
+  String get allocation;
+
+  /// No description provided for @portfolioPerformance.
+  ///
+  /// In en, this message translates to:
+  /// **'Portfolio Performance'**
+  String get portfolioPerformance;
+
+  /// No description provided for @noDataYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No data yet'**
+  String get noDataYet;
+
+  /// No description provided for @addAssetsToSeeAnalytics.
+  ///
+  /// In en, this message translates to:
+  /// **'Add assets and transactions to see analytics'**
+  String get addAssetsToSeeAnalytics;
+
+  /// No description provided for @breakdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Breakdown'**
+  String get breakdown;
+
+  /// No description provided for @priceHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Price History'**
+  String get priceHistory;
+
+  /// No description provided for @viewAll.
+  ///
+  /// In en, this message translates to:
+  /// **'View All'**
+  String get viewAll;
+
+  /// No description provided for @data.
+  ///
+  /// In en, this message translates to:
+  /// **'Data'**
+  String get data;
+
+  /// No description provided for @appearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get appearance;
+
+  /// No description provided for @exportSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share as .wealthlens.json'**
+  String get exportSubtitle;
+
+  /// No description provided for @importSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Load from .wealthlens.json'**
+  String get importSubtitle;
+
+  /// No description provided for @importFoundAssets.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one {Found 1 asset} other {Found {count} assets}}'**
+  String importFoundAssets(int count);
+
+  /// No description provided for @importNewCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} new'**
+  String importNewCount(int count);
+
+  /// No description provided for @importUpdateCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} will be updated'**
+  String importUpdateCount(int count);
+
+  /// No description provided for @importHowToImport.
+  ///
+  /// In en, this message translates to:
+  /// **'How would you like to import?'**
+  String get importHowToImport;
+
+  /// No description provided for @merge.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge'**
+  String get merge;
+
+  /// No description provided for @replaceAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace All'**
+  String get replaceAll;
+
+  /// No description provided for @basicInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic Info'**
+  String get basicInfo;
+
+  /// No description provided for @initialInvestment.
+  ///
+  /// In en, this message translates to:
+  /// **'Initial Investment'**
+  String get initialInvestment;
+
+  /// No description provided for @additional.
+  ///
+  /// In en, this message translates to:
+  /// **'Additional'**
+  String get additional;
+
+  /// No description provided for @quantityOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity (optional)'**
+  String get quantityOptional;
+
+  /// No description provided for @pricePerUnitOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Price per Unit (optional)'**
+  String get pricePerUnitOptional;
+
+  /// No description provided for @currentValueOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Value (optional)'**
+  String get currentValueOptional;
+
+  /// No description provided for @leaveBlankHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave blank if same as invested'**
+  String get leaveBlankHint;
+
+  /// No description provided for @notesOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes (optional)'**
+  String get notesOptional;
+
+  /// No description provided for @tagsOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags (optional)'**
+  String get tagsOptional;
+
+  /// No description provided for @addTagHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add tag...'**
+  String get addTagHint;
+
+  /// No description provided for @pleaseSelectCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a category'**
+  String get pleaseSelectCategory;
+
+  /// No description provided for @amountRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount *'**
+  String get amountRequired;
+
+  /// No description provided for @noteOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Note (optional)'**
+  String get noteOptional;
+
+  /// No description provided for @deleteTransaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Transaction'**
+  String get deleteTransaction;
+
+  /// No description provided for @cannotBeUndone.
+  ///
+  /// In en, this message translates to:
+  /// **'This cannot be undone.'**
+  String get cannotBeUndone;
+
+  /// No description provided for @skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get skip;
+
+  /// No description provided for @next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get next;
+
+  /// No description provided for @getStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Started'**
+  String get getStarted;
+
+  /// No description provided for @yourInvestmentsAtAGlance.
+  ///
+  /// In en, this message translates to:
+  /// **'Your investments, at a glance'**
+  String get yourInvestmentsAtAGlance;
+
+  /// No description provided for @onboarding1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Track Everything'**
+  String get onboarding1Title;
+
+  /// No description provided for @onboarding1Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Monitor all your investments in one place — crypto, stocks, gold, real estate, and more.'**
+  String get onboarding1Subtitle;
+
+  /// No description provided for @onboarding2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Visualize Growth'**
+  String get onboarding2Title;
+
+  /// No description provided for @onboarding2Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Beautiful charts show your portfolio performance and asset allocation at a glance.'**
+  String get onboarding2Subtitle;
+
+  /// No description provided for @onboarding3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay in Control'**
+  String get onboarding3Title;
+
+  /// No description provided for @onboarding3Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data stays on your device. Export, import, and manage your wealth with full privacy.'**
+  String get onboarding3Subtitle;
 }
 
 class _AppLocalizationsDelegate

@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wealth_lens/core/di/injection.dart';
 import 'package:wealth_lens/core/extensions/context_extensions.dart';
 import 'package:wealth_lens/core/theme/app_colors.dart';
+import 'package:wealth_lens/core/utils/currency_formatter.dart';
+import 'package:wealth_lens/presentation/blocs/currency/currency_cubit.dart';
+import 'package:wealth_lens/presentation/blocs/locale/locale_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/settings/settings_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/settings/settings_state.dart';
 import 'package:wealth_lens/presentation/blocs/theme/theme_cubit.dart';
@@ -14,7 +17,7 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => getIt<SettingsCubit>(),
+      create: (_) => getIt<SettingsCubit>()..loadVersion(),
       child: const _SettingsView(),
     );
   }
@@ -43,11 +46,19 @@ class _SettingsView extends StatelessWidget {
               );
         }
         if (!context.mounted) return;
-        if (state.status == SettingsStatus.success &&
-            state.successMessage != null) {
+        if (state.status == SettingsStatus.exportSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(state.successMessage!),
+              content: Text(context.l10n.exportSuccess),
+              backgroundColor: AppColors.profit,
+            ),
+          );
+          context.read<SettingsCubit>().resetStatus();
+        }
+        if (state.status == SettingsStatus.importSuccess) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(context.l10n.importSuccess),
               backgroundColor: AppColors.profit,
             ),
           );
@@ -66,16 +77,14 @@ class _SettingsView extends StatelessWidget {
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: AppBar(
-            title: const Text('Settings'),
-          ),
+          appBar: AppBar(title: Text(context.l10n.settings)),
           body: ListView(
             children: [
-              const _SectionHeader(label: 'Data'),
+              _SectionHeader(label: context.l10n.data),
               ListTile(
                 leading: const Icon(Icons.upload_outlined),
-                title: const Text('Export Portfolio'),
-                subtitle: const Text('Share as .wealthlens.json'),
+                title: Text(context.l10n.exportPortfolio),
+                subtitle: Text(context.l10n.exportSubtitle),
                 trailing: state.isBusy
                     ? const SizedBox(
                         width: 20,
@@ -89,8 +98,8 @@ class _SettingsView extends StatelessWidget {
               ),
               ListTile(
                 leading: const Icon(Icons.download_outlined),
-                title: const Text('Import Portfolio'),
-                subtitle: const Text('Load from .wealthlens.json file'),
+                title: Text(context.l10n.importPortfolio),
+                subtitle: Text(context.l10n.importSubtitle),
                 trailing: state.isBusy
                     ? const SizedBox(
                         width: 20,
@@ -103,65 +112,93 @@ class _SettingsView extends StatelessWidget {
                     : () => context.read<SettingsCubit>().pickImportFile(),
               ),
               const Divider(),
-              const _SectionHeader(label: 'Appearance'),
+              _SectionHeader(label: context.l10n.appearance),
+              // ── Theme ──────────────────────────────────────────────────────
               BlocBuilder<ThemeCubit, ThemeMode>(
                 builder: (context, themeMode) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.brightness_6_outlined),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Theme',
-                                style: context.textTheme.bodyLarge,
-                              ),
-                              SegmentedButton<ThemeMode>(
-                                segments: const [
-                                  ButtonSegment(
-                                    value: ThemeMode.light,
-                                    label: Text('Light'),
-                                    icon: Icon(Icons.light_mode_outlined),
-                                  ),
-                                  ButtonSegment(
-                                    value: ThemeMode.system,
-                                    label: Text('System'),
-                                    icon: Icon(Icons.brightness_auto_outlined),
-                                  ),
-                                  ButtonSegment(
-                                    value: ThemeMode.dark,
-                                    label: Text('Dark'),
-                                    icon: Icon(Icons.dark_mode_outlined),
-                                  ),
-                                ],
-                                selected: {themeMode},
-                                onSelectionChanged: (modes) {
-                                  context
-                                      .read<ThemeCubit>()
-                                      .setTheme(modes.first);
-                                },
-                              ),
-                            ],
-                          ),
+                  return _ToggleRow(
+                    icon: Icons.brightness_6_outlined,
+                    label: context.l10n.theme,
+                    child: SegmentedButton<ThemeMode>(
+                      segments: [
+                        ButtonSegment(
+                          value: ThemeMode.light,
+                          label: Text(context.l10n.themeLight),
+                        ),
+                        ButtonSegment(
+                          value: ThemeMode.system,
+                          label: Text(context.l10n.themeSystem),
+                        ),
+                        ButtonSegment(
+                          value: ThemeMode.dark,
+                          label: Text(context.l10n.themeDark),
                         ),
                       ],
+                      selected: {themeMode},
+                      onSelectionChanged: (modes) =>
+                          context.read<ThemeCubit>().setTheme(modes.first),
+                    ),
+                  );
+                },
+              ),
+              // ── Language ───────────────────────────────────────────────────
+              BlocBuilder<LocaleCubit, Locale>(
+                builder: (context, locale) {
+                  return _ToggleRow(
+                    icon: Icons.language_outlined,
+                    label: context.l10n.language,
+                    child: SegmentedButton<Locale>(
+                      segments: [
+                        ButtonSegment(
+                          value: const Locale('en'),
+                          label: Text(context.l10n.languageEnglish),
+                        ),
+                        ButtonSegment(
+                          value: const Locale('vi'),
+                          label: Text(context.l10n.languageVietnamese),
+                        ),
+                      ],
+                      selected: {locale},
+                      onSelectionChanged: (locales) =>
+                          context.read<LocaleCubit>().setLocale(locales.first),
+                    ),
+                  );
+                },
+              ),
+              // ── Currency ───────────────────────────────────────────────────
+              BlocBuilder<CurrencyCubit, AppCurrency>(
+                builder: (context, currency) {
+                  return _ToggleRow(
+                    icon: Icons.currency_exchange_outlined,
+                    label: context.l10n.currency,
+                    child: SegmentedButton<AppCurrency>(
+                      segments: const [
+                        ButtonSegment(
+                          value: AppCurrency.usd,
+                          label: Text('USD'),
+                        ),
+                        ButtonSegment(
+                          value: AppCurrency.vnd,
+                          label: Text('VND'),
+                        ),
+                      ],
+                      selected: {currency},
+                      onSelectionChanged: (currencies) => context
+                          .read<CurrencyCubit>()
+                          .setCurrency(currencies.first),
                     ),
                   );
                 },
               ),
               const Divider(),
-              const _SectionHeader(label: 'About'),
-              const ListTile(
-                leading: Icon(Icons.info_outline),
-                title: Text('Version'),
-                trailing: Text('1.0.0'),
+              _SectionHeader(label: context.l10n.about),
+              ListTile(
+                leading: const Icon(Icons.info_outline),
+                title: Text(context.l10n.version),
+                trailing: Text(
+                  state.appVersion ?? '—',
+                  style: context.textTheme.bodyMedium,
+                ),
               ),
             ],
           ),
@@ -185,6 +222,41 @@ class _SectionHeader extends StatelessWidget {
         style: context.textTheme.labelLarge?.copyWith(
           color: context.colorScheme.primary,
         ),
+      ),
+    );
+  }
+}
+
+class _ToggleRow extends StatelessWidget {
+  const _ToggleRow({
+    required this.icon,
+    required this.label,
+    required this.child,
+  });
+
+  final IconData icon;
+  final String label;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: Row(
+        children: [
+          Icon(icon, color: context.colorScheme.onSurfaceVariant),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: context.textTheme.bodyLarge),
+                const SizedBox(height: 6),
+                child,
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

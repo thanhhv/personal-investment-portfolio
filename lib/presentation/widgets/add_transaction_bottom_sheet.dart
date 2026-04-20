@@ -72,8 +72,7 @@ class _AddTransactionBottomSheetState
     final tx = Transaction(
       id: '',
       type: _type,
-      amount:
-          double.parse(_amountCtrl.text.trim().replaceAll(',', '.')),
+      amount: double.parse(_amountCtrl.text.trim().replaceAll(',', '.')),
       quantity: _quantityCtrl.text.trim().isEmpty
           ? null
           : double.tryParse(_quantityCtrl.text.trim().replaceAll(',', '.')),
@@ -81,8 +80,7 @@ class _AddTransactionBottomSheetState
       date: _date,
     );
 
-    final result =
-        await getIt<AddTransactionUseCase>()(widget.assetId, tx);
+    final result = await getIt<AddTransactionUseCase>()(widget.assetId, tx);
 
     result.fold(
       (failure) {
@@ -102,6 +100,7 @@ class _AddTransactionBottomSheetState
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final bottom = MediaQuery.viewInsetsOf(context).bottom;
     return Padding(
       padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottom),
@@ -113,10 +112,7 @@ class _AddTransactionBottomSheetState
           children: [
             Row(
               children: [
-                Text(
-                  'Add Transaction',
-                  style: context.textTheme.headlineSmall,
-                ),
+                Text(l.addTransaction, style: context.textTheme.headlineSmall),
                 const Spacer(),
                 IconButton(
                   icon: const Icon(Icons.close),
@@ -130,18 +126,21 @@ class _AddTransactionBottomSheetState
               onChanged: (t) => setState(() => _type = t),
             ),
             const SizedBox(height: 12),
-            _DatePickerRow(date: _date, onTap: _pickDate),
+            _DatePickerRow(
+              label: l.dateLabel,
+              date: _date,
+              onTap: _pickDate,
+            ),
             const SizedBox(height: 12),
             TextFormField(
               controller: _amountCtrl,
-              decoration: const InputDecoration(labelText: 'Amount *'),
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(labelText: l.amountRequired),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
               autofocus: true,
               validator: (v) {
-                if (v == null || v.trim().isEmpty) return 'Required';
+                if (v == null || v.trim().isEmpty) return l.fieldRequired;
                 if (!v.trim().isValidPositiveNumber) {
-                  return 'Must be a positive number';
+                  return l.validationPositiveNumber;
                 }
                 return null;
               },
@@ -149,14 +148,12 @@ class _AddTransactionBottomSheetState
             const SizedBox(height: 12),
             TextFormField(
               controller: _quantityCtrl,
-              decoration:
-                  const InputDecoration(labelText: 'Quantity (optional)'),
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(labelText: l.quantityOptional),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
               validator: (v) {
                 if (v == null || v.trim().isEmpty) return null;
                 if (!v.trim().isValidPositiveNumber) {
-                  return 'Must be a positive number';
+                  return l.validationPositiveNumber;
                 }
                 return null;
               },
@@ -164,8 +161,7 @@ class _AddTransactionBottomSheetState
             const SizedBox(height: 12),
             TextFormField(
               controller: _noteCtrl,
-              decoration:
-                  const InputDecoration(labelText: 'Note (optional)'),
+              decoration: InputDecoration(labelText: l.noteOptional),
             ),
             const SizedBox(height: 20),
             FilledButton(
@@ -179,7 +175,7 @@ class _AddTransactionBottomSheetState
                         color: Colors.white,
                       ),
                     )
-                  : const Text('Add Transaction'),
+                  : Text(l.addTransaction),
             ),
           ],
         ),
@@ -199,11 +195,21 @@ class _TypeSegmentedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return SegmentedButton<TransactionType>(
-      segments: const [
-        ButtonSegment(value: TransactionType.buy, label: Text('Buy')),
-        ButtonSegment(value: TransactionType.sell, label: Text('Sell')),
-        ButtonSegment(value: TransactionType.update, label: Text('Update')),
+      segments: [
+        ButtonSegment(
+          value: TransactionType.buy,
+          label: Text(l.transactionBuy),
+        ),
+        ButtonSegment(
+          value: TransactionType.sell,
+          label: Text(l.transactionSell),
+        ),
+        ButtonSegment(
+          value: TransactionType.update,
+          label: Text(l.transactionUpdate),
+        ),
       ],
       selected: {selected},
       onSelectionChanged: (s) => onChanged(s.first),
@@ -213,8 +219,13 @@ class _TypeSegmentedButton extends StatelessWidget {
 }
 
 class _DatePickerRow extends StatelessWidget {
-  const _DatePickerRow({required this.date, required this.onTap});
+  const _DatePickerRow({
+    required this.label,
+    required this.date,
+    required this.onTap,
+  });
 
+  final String label;
   final DateTime date;
   final VoidCallback onTap;
 
@@ -224,7 +235,7 @@ class _DatePickerRow extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(8),
       child: InputDecorator(
-        decoration: const InputDecoration(labelText: 'Date'),
+        decoration: InputDecoration(labelText: label),
         child: Row(
           children: [
             Expanded(child: Text(DateFormatter.format(date))),

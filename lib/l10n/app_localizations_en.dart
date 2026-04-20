@@ -245,4 +245,182 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profitLossByCategory => 'Profit / Loss by Category';
+
+  @override
+  String get myAssets => 'My Assets';
+
+  @override
+  String get somethingWentWrong => 'Something went wrong';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get assetNotFound => 'Asset not found';
+
+  @override
+  String get fieldRequired => 'Required';
+
+  @override
+  String get dateLabel => 'Date';
+
+  @override
+  String get investedVsCurrentValue => 'Invested vs. Current Value';
+
+  @override
+  String get invested => 'Invested';
+
+  @override
+  String get value => 'Value';
+
+  @override
+  String get gain => 'Gain';
+
+  @override
+  String get loss => 'Loss';
+
+  @override
+  String get pAndL => 'P&L';
+
+  @override
+  String get allocation => 'Alloc.';
+
+  @override
+  String get portfolioPerformance => 'Portfolio Performance';
+
+  @override
+  String get noDataYet => 'No data yet';
+
+  @override
+  String get addAssetsToSeeAnalytics =>
+      'Add assets and transactions to see analytics';
+
+  @override
+  String get breakdown => 'Breakdown';
+
+  @override
+  String get priceHistory => 'Price History';
+
+  @override
+  String get viewAll => 'View All';
+
+  @override
+  String get data => 'Data';
+
+  @override
+  String get appearance => 'Appearance';
+
+  @override
+  String get exportSubtitle => 'Share as .wealthlens.json';
+
+  @override
+  String get importSubtitle => 'Load from .wealthlens.json';
+
+  @override
+  String importFoundAssets(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Found $count assets',
+      one: 'Found 1 asset',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importNewCount(int count) {
+    return '$count new';
+  }
+
+  @override
+  String importUpdateCount(int count) {
+    return '$count will be updated';
+  }
+
+  @override
+  String get importHowToImport => 'How would you like to import?';
+
+  @override
+  String get merge => 'Merge';
+
+  @override
+  String get replaceAll => 'Replace All';
+
+  @override
+  String get basicInfo => 'Basic Info';
+
+  @override
+  String get initialInvestment => 'Initial Investment';
+
+  @override
+  String get additional => 'Additional';
+
+  @override
+  String get quantityOptional => 'Quantity (optional)';
+
+  @override
+  String get pricePerUnitOptional => 'Price per Unit (optional)';
+
+  @override
+  String get currentValueOptional => 'Current Value (optional)';
+
+  @override
+  String get leaveBlankHint => 'Leave blank if same as invested';
+
+  @override
+  String get notesOptional => 'Notes (optional)';
+
+  @override
+  String get tagsOptional => 'Tags (optional)';
+
+  @override
+  String get addTagHint => 'Add tag...';
+
+  @override
+  String get pleaseSelectCategory => 'Please select a category';
+
+  @override
+  String get amountRequired => 'Amount *';
+
+  @override
+  String get noteOptional => 'Note (optional)';
+
+  @override
+  String get deleteTransaction => 'Delete Transaction';
+
+  @override
+  String get cannotBeUndone => 'This cannot be undone.';
+
+  @override
+  String get skip => 'Skip';
+
+  @override
+  String get next => 'Next';
+
+  @override
+  String get getStarted => 'Get Started';
+
+  @override
+  String get yourInvestmentsAtAGlance => 'Your investments, at a glance';
+
+  @override
+  String get onboarding1Title => 'Track Everything';
+
+  @override
+  String get onboarding1Subtitle =>
+      'Monitor all your investments in one place — crypto, stocks, gold, real estate, and more.';
+
+  @override
+  String get onboarding2Title => 'Visualize Growth';
+
+  @override
+  String get onboarding2Subtitle =>
+      'Beautiful charts show your portfolio performance and asset allocation at a glance.';
+
+  @override
+  String get onboarding3Title => 'Stay in Control';
+
+  @override
+  String get onboarding3Subtitle =>
+      'Your data stays on your device. Export, import, and manage your wealth with full privacy.';
 }

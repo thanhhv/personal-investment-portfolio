@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wealth_lens/core/extensions/context_extensions.dart';
 import 'package:wealth_lens/core/theme/app_colors.dart';
 import 'package:wealth_lens/core/theme/app_text_styles.dart';
 import 'package:wealth_lens/core/utils/currency_formatter.dart';
@@ -42,21 +43,26 @@ class PortfolioHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Total Portfolio Value',
+            context.l10n.totalPortfolioValue,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: Colors.white.withValues(alpha: 0.85),
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            CurrencyFormatter.format(totalValue, currency),
-            style: AppTextStyles.portfolioTotal.copyWith(color: Colors.white),
+          TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0, end: totalValue),
+            duration: const Duration(milliseconds: 800),
+            curve: Curves.easeOut,
+            builder: (context, value, _) => Text(
+              CurrencyFormatter.format(value, currency),
+              style: AppTextStyles.portfolioTotal.copyWith(color: Colors.white),
+            ),
           ),
           const SizedBox(height: 16),
           Row(
             children: [
               _StatChip(
-                label: 'Invested',
+                label: context.l10n.invested,
                 value: CurrencyFormatter.formatCompact(totalInvested, currency),
               ),
               const SizedBox(width: 8),
@@ -144,7 +150,7 @@ class _ProfitLossChip extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'P&L',
+                context.l10n.pAndL,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: Colors.white.withValues(alpha: 0.7),
                     ),

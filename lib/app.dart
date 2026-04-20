@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:wealth_lens/core/theme/app_theme.dart';
 import 'package:wealth_lens/l10n/app_localizations.dart';
+import 'package:wealth_lens/presentation/blocs/currency/currency_cubit.dart';
+import 'package:wealth_lens/presentation/blocs/locale/locale_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/theme/theme_cubit.dart';
 import 'package:wealth_lens/presentation/routes/app_router.dart';
 
@@ -11,27 +13,36 @@ class WealthLensApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => ThemeCubit()..load(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => ThemeCubit()..load()),
+        BlocProvider(create: (_) => LocaleCubit()..load()),
+        BlocProvider(create: (_) => CurrencyCubit()..load()),
+      ],
       child: BlocBuilder<ThemeCubit, ThemeMode>(
         builder: (context, themeMode) {
-          return MaterialApp.router(
-            title: 'WealthLens',
-            debugShowCheckedModeBanner: false,
-            theme: AppTheme.light,
-            darkTheme: AppTheme.dark,
-            themeMode: themeMode,
-            routerConfig: appRouter,
-            localizationsDelegates: const [
-              AppLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: const [
-              Locale('en'),
-              Locale('vi'),
-            ],
+          return BlocBuilder<LocaleCubit, Locale>(
+            builder: (context, locale) {
+              return MaterialApp.router(
+                title: 'WealthLens',
+                debugShowCheckedModeBanner: false,
+                theme: AppTheme.light,
+                darkTheme: AppTheme.dark,
+                themeMode: themeMode,
+                locale: locale,
+                routerConfig: appRouter,
+                localizationsDelegates: const [
+                  AppLocalizations.delegate,
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                ],
+                supportedLocales: const [
+                  Locale('en'),
+                  Locale('vi'),
+                ],
+              );
+            },
           );
         },
       ),

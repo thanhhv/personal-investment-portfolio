@@ -10,9 +10,8 @@ import 'package:wealth_lens/core/utils/date_formatter.dart';
 import 'package:wealth_lens/domain/entities/transaction.dart';
 import 'package:wealth_lens/presentation/blocs/asset_detail/asset_detail_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/asset_detail/asset_detail_state.dart';
+import 'package:wealth_lens/presentation/blocs/currency/currency_cubit.dart';
 import 'package:wealth_lens/presentation/widgets/add_transaction_bottom_sheet.dart';
-
-const _currency = AppCurrency.usd;
 
 class TransactionLogScreen extends StatelessWidget {
   const TransactionLogScreen({required this.assetId, super.key});
@@ -35,15 +34,16 @@ class _TransactionLogView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Transactions')),
+      appBar: AppBar(title: Text(l.transactions)),
       body: BlocBuilder<AssetDetailCubit, AssetDetailState>(
         builder: (context, state) {
           if (state.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
           if (state.asset == null) {
-            return const Center(child: Text('Asset not found'));
+            return Center(child: Text(l.assetNotFound));
           }
 
           final transactions = [...state.asset!.transactions]
@@ -64,7 +64,7 @@ class _TransactionLogView extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'No transactions yet',
+                      l.noTransactionsYet,
                       style: context.textTheme.headlineSmall,
                     ),
                   ],
@@ -73,6 +73,7 @@ class _TransactionLogView extends StatelessWidget {
             );
           }
 
+          final currency = context.read<CurrencyCubit>().state;
           return ListView.separated(
             itemCount: transactions.length,
             separatorBuilder: (_, __) => const Divider(height: 1),
@@ -80,6 +81,7 @@ class _TransactionLogView extends StatelessWidget {
               return _TransactionTile(
                 assetId: assetId,
                 transaction: transactions[index],
+                currency: currency,
               );
             },
           );
@@ -101,21 +103,17 @@ class _TransactionTile extends StatelessWidget {
   const _TransactionTile({
     required this.assetId,
     required this.transaction,
+    required this.currency,
   });
 
   final String assetId;
   final Transaction transaction;
+  final AppCurrency currency;
 
   Color _typeColor() => switch (transaction.type) {
         TransactionType.buy => AppColors.secondary,
         TransactionType.sell => AppColors.loss,
         TransactionType.update => AppColors.neutral,
-      };
-
-  String _typeLabel() => switch (transaction.type) {
-        TransactionType.buy => 'Buy',
-        TransactionType.sell => 'Sell',
-        TransactionType.update => 'Update',
       };
 
   IconData _typeIcon() => switch (transaction.type) {
@@ -126,7 +124,14 @@ class _TransactionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final color = _typeColor();
+    final typeLabel = switch (transaction.type) {
+      TransactionType.buy => l.transactionBuy,
+      TransactionType.sell => l.transactionSell,
+      TransactionType.update => l.transactionUpdate,
+    };
+
     return ListTile(
       leading: Container(
         width: 40,
@@ -138,14 +143,14 @@ class _TransactionTile extends StatelessWidget {
         child: Icon(_typeIcon(), color: color, size: 18),
       ),
       title: Text(
-        CurrencyFormatter.format(transaction.amount, _currency),
+        CurrencyFormatter.format(transaction.amount, currency),
         style: context.textTheme.titleSmall,
       ),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '${_typeLabel()} · ${DateFormatter.format(transaction.date)}',
+            '$typeLabel · ${DateFormatter.format(transaction.date)}',
             style: context.textTheme.bodySmall,
           ),
           if (transaction.quantity != null)
@@ -175,20 +180,21 @@ class _TransactionTile extends StatelessWidget {
   }
 
   Future<void> _confirmDelete(BuildContext context) async {
+    final l = context.l10n;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete Transaction'),
-        content: const Text('This cannot be undone.'),
+        title: Text(l.deleteTransaction),
+        content: Text(l.cannotBeUndone),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l.cancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: AppColors.loss),
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Delete'),
+            child: Text(l.delete),
           ),
         ],
       ),

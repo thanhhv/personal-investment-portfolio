@@ -15,10 +15,9 @@ import 'package:wealth_lens/domain/entities/price_point.dart';
 import 'package:wealth_lens/domain/entities/transaction.dart';
 import 'package:wealth_lens/presentation/blocs/asset_detail/asset_detail_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/asset_detail/asset_detail_state.dart';
+import 'package:wealth_lens/presentation/blocs/currency/currency_cubit.dart';
 import 'package:wealth_lens/presentation/routes/app_router.dart';
 import 'package:wealth_lens/presentation/widgets/add_transaction_bottom_sheet.dart';
-
-const _currency = AppCurrency.usd;
 
 class AssetDetailScreen extends StatelessWidget {
   const AssetDetailScreen({required this.assetId, super.key});
@@ -51,7 +50,11 @@ class _AssetDetailView extends StatelessWidget {
         if (state.status == AssetDetailStatus.failure &&
             state.asset == null) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.errorMessage ?? 'Error')),
+            SnackBar(
+              content: Text(
+                state.errorMessage ?? context.l10n.somethingWentWrong,
+              ),
+            ),
           );
         }
       },
@@ -65,7 +68,7 @@ class _AssetDetailView extends StatelessWidget {
         if (state.asset == null) {
           return Scaffold(
             appBar: AppBar(),
-            body: const Center(child: Text('Asset not found')),
+            body: Center(child: Text(context.l10n.assetNotFound)),
           );
         }
         return _AssetDetailContent(
@@ -87,22 +90,21 @@ class _AssetDetailContent extends StatelessWidget {
   final Asset asset;
 
   Future<void> _confirmDelete(BuildContext context) async {
+    final l = context.l10n;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete Asset'),
-        content: Text('Delete "${asset.name}"? This cannot be undone.'),
+        title: Text(l.deleteAsset),
+        content: Text('${l.confirmDelete(asset.name)} ${l.cannotBeUndone}'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l.cancel),
           ),
           FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: AppColors.loss,
-            ),
+            style: FilledButton.styleFrom(backgroundColor: AppColors.loss),
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Delete'),
+            child: Text(l.delete),
           ),
         ],
       ),
@@ -114,6 +116,8 @@ class _AssetDetailContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
+    final currency = context.read<CurrencyCubit>().state;
     final sortedHistory = [...asset.priceHistory]
       ..sort((a, b) => a.date.compareTo(b.date));
     final sortedTx = [...asset.transactions]
@@ -143,11 +147,13 @@ class _AssetDetailContent extends StatelessWidget {
       ),
       body: ListView(
         children: [
-          _AssetHeader(asset: asset),
-          if (sortedHistory.length >= 2) _PriceChart(history: sortedHistory),
+          _AssetHeader(asset: asset, currency: currency),
+          if (sortedHistory.length >= 2)
+            _PriceChart(history: sortedHistory),
           _TransactionsSection(
             assetId: assetId,
             transactions: sortedTx,
+            currency: currency,
           ),
           const SizedBox(height: 100),
         ],
@@ -156,23 +162,24 @@ class _AssetDetailContent extends StatelessWidget {
         onPressed: () => AddTransactionBottomSheet.show(
           context,
           assetId: assetId,
-          onAdded: () =>
-              context.read<AssetDetailCubit>().load(assetId),
+          onAdded: () => context.read<AssetDetailCubit>().load(assetId),
         ),
         icon: const Icon(Icons.add),
-        label: const Text('Add Transaction'),
+        label: Text(l.addTransaction),
       ),
     );
   }
 }
 
 class _AssetHeader extends StatelessWidget {
-  const _AssetHeader({required this.asset});
+  const _AssetHeader({required this.asset, required this.currency});
 
   final Asset asset;
+  final AppCurrency currency;
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final isProfit = asset.profitLoss >= 0;
     final plColor = isProfit ? AppColors.profit : AppColors.loss;
 
@@ -237,7 +244,7 @@ class _AssetHeader extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               Text(
-                CurrencyFormatter.format(asset.currentValue, _currency),
+                CurrencyFormatter.format(asset.currentValue, currency),
                 style: AppTextStyles.portfolioTotal.copyWith(
                   color: Colors.white,
                 ),
@@ -246,17 +253,17 @@ class _AssetHeader extends StatelessWidget {
               Row(
                 children: [
                   _InfoChip(
-                    label: 'Invested',
+                    label: l.invested,
                     value: CurrencyFormatter.formatCompact(
                       asset.totalInvested,
-                      _currency,
+                      currency,
                     ),
                   ),
                   const SizedBox(width: 8),
                   _InfoChip(
-                    label: 'P&L',
+                    label: l.pAndL,
                     value:
-                        '${CurrencyFormatter.formatCompact(asset.profitLoss.abs(), _currency)} '
+                        '${CurrencyFormatter.formatCompact(asset.profitLoss.abs(), currency)} '
                         '(${CurrencyFormatter.formatPercent(asset.profitLossPercent)})',
                     color: plColor,
                   ),
@@ -335,7 +342,10 @@ class _PriceChart extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Price History', style: context.textTheme.headlineSmall),
+          Text(
+            context.l10n.priceHistory,
+            style: context.textTheme.headlineSmall,
+          ),
           const SizedBox(height: 16),
           SizedBox(
             height: 160,
@@ -372,13 +382,16 @@ class _TransactionsSection extends StatelessWidget {
   const _TransactionsSection({
     required this.assetId,
     required this.transactions,
+    required this.currency,
   });
 
   final String assetId;
   final List<Transaction> transactions;
+  final AppCurrency currency;
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -387,14 +400,14 @@ class _TransactionsSection extends StatelessWidget {
           child: Row(
             children: [
               Text(
-                'Transactions',
+                l.transactions,
                 style: context.textTheme.headlineSmall,
               ),
               const Spacer(),
               TextButton(
                 onPressed: () =>
                     context.push(AppRoutes.transactionsPath(assetId)),
-                child: const Text('View All'),
+                child: Text(l.viewAll),
               ),
             ],
           ),
@@ -403,7 +416,7 @@ class _TransactionsSection extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Text(
-              'No transactions yet',
+              l.noTransactionsYet,
               style: context.textTheme.bodyMedium?.copyWith(
                 color: context.colorScheme.onSurface.withValues(alpha: 0.5),
               ),
@@ -414,6 +427,7 @@ class _TransactionsSection extends StatelessWidget {
                 (tx) => _TransactionTile(
                   assetId: assetId,
                   transaction: tx,
+                  currency: currency,
                 ),
               ),
       ],
@@ -425,10 +439,12 @@ class _TransactionTile extends StatelessWidget {
   const _TransactionTile({
     required this.assetId,
     required this.transaction,
+    required this.currency,
   });
 
   final String assetId;
   final Transaction transaction;
+  final AppCurrency currency;
 
   Color _typeColor() => switch (transaction.type) {
         TransactionType.buy => AppColors.secondary,
@@ -436,15 +452,16 @@ class _TransactionTile extends StatelessWidget {
         TransactionType.update => AppColors.neutral,
       };
 
-  String _typeLabel() => switch (transaction.type) {
-        TransactionType.buy => 'Buy',
-        TransactionType.sell => 'Sell',
-        TransactionType.update => 'Update',
-      };
-
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final color = _typeColor();
+    final typeLabel = switch (transaction.type) {
+      TransactionType.buy => l.transactionBuy,
+      TransactionType.sell => l.transactionSell,
+      TransactionType.update => l.transactionUpdate,
+    };
+
     return ListTile(
       leading: Container(
         width: 40,
@@ -464,11 +481,11 @@ class _TransactionTile extends StatelessWidget {
         ),
       ),
       title: Text(
-        CurrencyFormatter.format(transaction.amount, _currency),
+        CurrencyFormatter.format(transaction.amount, currency),
         style: context.textTheme.titleSmall,
       ),
       subtitle: Text(
-        '${_typeLabel()} · ${DateFormatter.format(transaction.date)}',
+        '$typeLabel · ${DateFormatter.format(transaction.date)}',
         style: context.textTheme.bodySmall,
       ),
       trailing: IconButton(
@@ -479,20 +496,21 @@ class _TransactionTile extends StatelessWidget {
   }
 
   Future<void> _confirmDelete(BuildContext context) async {
+    final l = context.l10n;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete Transaction'),
-        content: const Text('This cannot be undone.'),
+        title: Text(l.deleteTransaction),
+        content: Text(l.cannotBeUndone),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l.cancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: AppColors.loss),
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Delete'),
+            child: Text(l.delete),
           ),
         ],
       ),
