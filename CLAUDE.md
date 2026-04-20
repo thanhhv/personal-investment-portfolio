@@ -326,22 +326,21 @@ Hive box requires async init. `HiveDatasource` is registered manually in `main()
 
 ---
 
-### 🔲 Phase 5 — Export / Import
+### ✅ Phase 5 — Export / Import (DONE)
 
-**ExportPortfolioUseCase:**
-1. Fetch all assets
-2. Serialize to JSON (`{'version':'1.0', 'exportedAt':..., 'currency':..., 'assets':[...]}`)
-3. Write to `path_provider` temp dir as `portfolio_YYYYMMDD.wealthlens.json`
-4. Call `share_plus` share sheet
+**Completed files:**
+- `lib/domain/usecases/export_portfolio_usecase.dart` — `@injectable`, fetches all assets, serializes to JSON (`version`, `exportedAt`, `currency`, `assets`), writes to `path_provider` temp dir, shares via `Share.shareXFiles`
+- `lib/domain/usecases/import_portfolio_usecase.dart` — `@injectable`, `ImportPreview` class (assets, newCount, updateCount); `pickAndPreview()` uses `file_picker` + `compute(_parseAssets)` for JSON parsing with version validation; `confirm(preview, merge:)` calls repository
+- `lib/presentation/blocs/settings/settings_state.dart` — `SettingsStatus` enum + state with `importPreview`, `successMessage`, `errorMessage`
+- `lib/presentation/blocs/settings/settings_cubit.dart` — `@injectable`, `exportPortfolio()`, `pickImportFile()`, `confirmImport(merge:)`, `dismissPreview()`, `resetStatus()`
+- `lib/presentation/widgets/import_confirm_dialog.dart` — `ImportAction` enum (merge/replaceAll), static `show()`, counts new vs updated assets
+- `lib/presentation/screens/settings/settings_screen.dart` — Export/Import tiles, Theme `SegmentedButton` (Light/System/Dark), About section; `BlocConsumer` shows confirm dialog on `previewReady`, snackbars on success/failure
 
-**ImportPortfolioUseCase:**
-1. `file_picker` → pick `.wealthlens.json`
-2. `compute()` for JSON parsing
-3. Validate `version` field
-4. Return `ImportDiff(toAdd, toReplace)` for confirmation dialog
-5. On confirm: call repository `importAssets(assets, merge: bool)`
-
-**ImportConfirmDialog** — shows diff summary before committing.
+**Key decisions:**
+- `_parseAssets` is a top-level function for `compute()` isolate compatibility
+- `importAssets(merge: true)` adds/updates without deleting; `merge: false` replaces all
+- `SettingsCubit` resets to idle after each snackbar so the listener doesn't re-fire
+- share_plus v10 API: `Share.shareXFiles([XFile(path)])` (not `SharePlus.instance`)
 
 ---
 
