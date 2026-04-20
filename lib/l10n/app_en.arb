@@ -1,0 +1,103 @@
+{
+  "@@locale": "en",
+
+  "appName": "WealthLens",
+  "@appName": { "description": "Application name" },
+
+  "dashboard": "Dashboard",
+  "analytics": "Analytics",
+  "settings": "Settings",
+  "transactions": "Transactions",
+
+  "totalPortfolioValue": "Total Portfolio Value",
+  "totalProfitLoss": "Total Profit / Loss",
+  "totalInvested": "Total Invested",
+  "currentValue": "Current Value",
+  "profitLoss": "Profit / Loss",
+  "allTime": "All Time",
+
+  "assets": "Assets",
+  "addAsset": "Add Asset",
+  "editAsset": "Edit Asset",
+  "deleteAsset": "Delete Asset",
+  "assetName": "Asset Name",
+  "assetCategory": "Category",
+  "purchaseDate": "Purchase Date",
+  "quantity": "Quantity",
+  "purchasePricePerUnit": "Purchase Price per Unit",
+  "totalInvestedAmount": "Total Invested Amount",
+  "currentValueAmount": "Current Value",
+  "notes": "Notes",
+  "tags": "Tags",
+
+  "categoryCrypto": "Cryptocurrency",
+  "categoryStock": "Stocks",
+  "categoryFund": "Mutual Fund / ETF",
+  "categoryGold": "Gold",
+  "categoryRealEstate": "Real Estate",
+  "categorySavings": "Savings / Deposit",
+  "categoryLending": "Peer Lending",
+  "categoryOther": "Other",
+
+  "transactionType": "Type",
+  "transactionBuy": "Buy",
+  "transactionSell": "Sell",
+  "transactionUpdate": "Update",
+  "transactionAmount": "Amount",
+  "transactionDate": "Date",
+  "transactionNote": "Note",
+  "addTransaction": "Add Transaction",
+
+  "exportPortfolio": "Export Portfolio",
+  "importPortfolio": "Import Portfolio",
+  "exportSuccess": "Portfolio exported successfully",
+  "importSuccess": "Portfolio imported successfully",
+  "importMerge": "Merge with existing",
+  "importReplace": "Replace all",
+  "importConfirmTitle": "Import Portfolio",
+  "importConfirmMessage": "{count, plural, one {1 asset} other {{count} assets}} will be {action}.",
+  "@importConfirmMessage": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "action": { "type": "String" }
+    }
+  },
+
+  "language": "Language",
+  "languageEnglish": "English",
+  "languageVietnamese": "Tiếng Việt",
+  "currency": "Currency",
+  "theme": "Theme",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "themeSystem": "System",
+  "about": "About",
+  "version": "Version",
+
+  "confirmDelete": "Delete {name}?",
+  "@confirmDelete": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "confirmDeleteMessage": "This action cannot be undone.",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "save": "Save",
+  "confirm": "Confirm",
+  "done": "Done",
+
+  "validationRequired": "This field is required",
+  "validationPositiveNumber": "Must be a positive number",
+
+  "noAssetsYet": "No assets yet",
+  "noAssetsMessage": "Tap + to add your first investment",
+  "noTransactionsYet": "No transactions yet",
+
+  "bestPerforming": "Best Performing",
+  "worstPerforming": "Worst Performing",
+  "categoryBreakdown": "Category Breakdown",
+  "monthlySnapshot": "Monthly Snapshot",
+  "allocationByCategory": "Allocation by Category",
+  "profitLossByCategory": "Profit / Loss by Category"
+}

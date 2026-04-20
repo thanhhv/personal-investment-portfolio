@@ -1,0 +1,101 @@
+{
+  "@@locale": "vi",
+
+  "appName": "WealthLens",
+  "dashboard": "Tổng quan",
+  "analytics": "Phân tích",
+  "settings": "Cài đặt",
+  "transactions": "Giao dịch",
+
+  "totalPortfolioValue": "Tổng giá trị danh mục",
+  "totalProfitLoss": "Tổng lợi nhuận / Lỗ",
+  "totalInvested": "Tổng đầu tư",
+  "currentValue": "Giá trị hiện tại",
+  "profitLoss": "Lợi nhuận / Lỗ",
+  "allTime": "Tất cả",
+
+  "assets": "Tài sản",
+  "addAsset": "Thêm tài sản",
+  "editAsset": "Chỉnh sửa tài sản",
+  "deleteAsset": "Xóa tài sản",
+  "assetName": "Tên tài sản",
+  "assetCategory": "Danh mục",
+  "purchaseDate": "Ngày mua",
+  "quantity": "Số lượng",
+  "purchasePricePerUnit": "Giá mua mỗi đơn vị",
+  "totalInvestedAmount": "Tổng số tiền đầu tư",
+  "currentValueAmount": "Giá trị hiện tại",
+  "notes": "Ghi chú",
+  "tags": "Thẻ",
+
+  "categoryCrypto": "Tiền mã hóa",
+  "categoryStock": "Cổ phiếu",
+  "categoryFund": "Chứng chỉ quỹ",
+  "categoryGold": "Vàng",
+  "categoryRealEstate": "Bất động sản",
+  "categorySavings": "Tiết kiệm",
+  "categoryLending": "Cho vay",
+  "categoryOther": "Khác",
+
+  "transactionType": "Loại",
+  "transactionBuy": "Mua",
+  "transactionSell": "Bán",
+  "transactionUpdate": "Cập nhật",
+  "transactionAmount": "Số tiền",
+  "transactionDate": "Ngày",
+  "transactionNote": "Ghi chú",
+  "addTransaction": "Thêm giao dịch",
+
+  "exportPortfolio": "Xuất danh mục",
+  "importPortfolio": "Nhập danh mục",
+  "exportSuccess": "Xuất danh mục thành công",
+  "importSuccess": "Nhập danh mục thành công",
+  "importMerge": "Gộp với dữ liệu hiện có",
+  "importReplace": "Thay thế tất cả",
+  "importConfirmTitle": "Nhập danh mục",
+  "importConfirmMessage": "{count} tài sản sẽ được {action}.",
+  "@importConfirmMessage": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "action": { "type": "String" }
+    }
+  },
+
+  "language": "Ngôn ngữ",
+  "languageEnglish": "English",
+  "languageVietnamese": "Tiếng Việt",
+  "currency": "Tiền tệ",
+  "theme": "Giao diện",
+  "themeLight": "Sáng",
+  "themeDark": "Tối",
+  "themeSystem": "Hệ thống",
+  "about": "Thông tin",
+  "version": "Phiên bản",
+
+  "confirmDelete": "Xóa {name}?",
+  "@confirmDelete": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "confirmDeleteMessage": "Hành động này không thể hoàn tác.",
+  "cancel": "Hủy",
+  "delete": "Xóa",
+  "save": "Lưu",
+  "confirm": "Xác nhận",
+  "done": "Xong",
+
+  "validationRequired": "Trường này là bắt buộc",
+  "validationPositiveNumber": "Phải là số dương",
+
+  "noAssetsYet": "Chưa có tài sản",
+  "noAssetsMessage": "Nhấn + để thêm khoản đầu tư đầu tiên",
+  "noTransactionsYet": "Chưa có giao dịch",
+
+  "bestPerforming": "Hiệu suất tốt nhất",
+  "worstPerforming": "Hiệu suất kém nhất",
+  "categoryBreakdown": "Phân tích danh mục",
+  "monthlySnapshot": "Tổng quan hàng tháng",
+  "allocationByCategory": "Phân bổ theo danh mục",
+  "profitLossByCategory": "Lợi nhuận / Lỗ theo danh mục"
+}
