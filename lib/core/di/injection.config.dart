@@ -64,6 +64,10 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i376.AddTransactionUseCase(gh<_i629.AssetRepository>()));
     gh.factory<_i72.DeleteTransactionUseCase>(
         () => _i72.DeleteTransactionUseCase(gh<_i629.AssetRepository>()));
+    gh.factory<_i206.DashboardCubit>(() => _i206.DashboardCubit(
+          gh<_i485.GetAllAssetsUseCase>(),
+          gh<_i158.DeleteAssetUseCase>(),
+        ));
     gh.factory<_i420.ExportPortfolioUseCase>(
         () => _i420.ExportPortfolioUseCase(gh<_i629.AssetRepository>()));
     gh.factory<_i310.ImportPortfolioUseCase>(
@@ -75,8 +79,6 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i158.DeleteAssetUseCase>(),
           gh<_i72.DeleteTransactionUseCase>(),
         ));
-    gh.factory<_i206.DashboardCubit>(
-        () => _i206.DashboardCubit(gh<_i485.GetAllAssetsUseCase>()));
     gh.factory<_i750.AnalyticsCubit>(
         () => _i750.AnalyticsCubit(gh<_i485.GetAllAssetsUseCase>()));
     gh.factory<_i116.SettingsCubit>(() => _i116.SettingsCubit(

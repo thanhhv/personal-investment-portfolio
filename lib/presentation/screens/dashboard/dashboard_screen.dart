@@ -196,27 +196,57 @@ class _AssetListView extends StatelessWidget {
           ),
           SliverList(
             delegate: SliverChildBuilderDelegate(
-              (context, index) => AnimationConfiguration.staggeredList(
-                position: index,
-                duration: const Duration(milliseconds: 375),
-                child: SlideAnimation(
-                  verticalOffset: 40,
-                  child: FadeInAnimation(
-                    child: AssetCard(
-                      asset: state.assets[index],
-                      currency: currency,
-                      onTap: () async {
-                        await context.push(
-                          AppRoutes.assetDetailPath(state.assets[index].id),
-                        );
-                        if (context.mounted) {
-                          unawaited(context.read<DashboardCubit>().load());
-                        }
-                      },
+              (context, index) {
+                final asset = state.assets[index];
+                return AnimationConfiguration.staggeredList(
+                  position: index,
+                  duration: const Duration(milliseconds: 375),
+                  child: SlideAnimation(
+                    verticalOffset: 40,
+                    child: FadeInAnimation(
+                      child: Dismissible(
+                        key: ValueKey(asset.id),
+                        direction: DismissDirection.endToStart,
+                        confirmDismiss: (_) =>
+                            _confirmDelete(context, asset.name),
+                        onDismissed: (_) =>
+                            context.read<DashboardCubit>().deleteAsset(asset.id),
+                        background: Container(
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.loss,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.only(right: 24),
+                          child: const Icon(
+                            Icons.delete_outline,
+                            color: Colors.white,
+                            size: 26,
+                          ),
+                        ),
+                        child: AssetCard(
+                          asset: asset,
+                          currency: currency,
+                          onTap: () async {
+                            await context.push(
+                              AppRoutes.assetDetailPath(asset.id),
+                            );
+                            if (context.mounted) {
+                              unawaited(
+                                context.read<DashboardCubit>().load(),
+                              );
+                            }
+                          },
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
+                );
+              },
               childCount: state.assets.length,
             ),
           ),
@@ -225,4 +255,27 @@ class _AssetListView extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<bool> _confirmDelete(BuildContext context, String name) async {
+  final l = context.l10n;
+  return await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(l.deleteAsset),
+          content: Text('${l.confirmDelete(name)} ${l.cannotBeUndone}'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text(l.cancel),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: AppColors.loss),
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: Text(l.delete),
+            ),
+          ],
+        ),
+      ) ??
+      false;
 }

@@ -81,20 +81,30 @@ class _SettingsView extends StatelessWidget {
           body: ListView(
             children: [
               _SectionHeader(label: context.l10n.data),
-              ListTile(
-                leading: const Icon(Icons.upload_outlined),
-                title: Text(context.l10n.exportPortfolio),
-                subtitle: Text(context.l10n.exportSubtitle),
-                trailing: state.isBusy
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.chevron_right),
-                onTap: state.isBusy
-                    ? null
-                    : () => context.read<SettingsCubit>().exportPortfolio(),
+              Builder(
+                builder: (tileContext) => ListTile(
+                  leading: const Icon(Icons.upload_outlined),
+                  title: Text(context.l10n.exportPortfolio),
+                  subtitle: Text(context.l10n.exportSubtitle),
+                  trailing: state.isBusy
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.chevron_right),
+                  onTap: state.isBusy
+                      ? null
+                      : () {
+                          final box =
+                              tileContext.findRenderObject()! as RenderBox;
+                          final rect =
+                              box.localToGlobal(Offset.zero) & box.size;
+                          context
+                              .read<SettingsCubit>()
+                              .exportPortfolio(sharePositionOrigin: rect);
+                        },
+                ),
               ),
               ListTile(
                 leading: const Icon(Icons.download_outlined),

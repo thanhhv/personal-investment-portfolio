@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -17,9 +18,9 @@ class SettingsCubit extends Cubit<SettingsState> {
     emit(state.copyWith(appVersion: info.version));
   }
 
-  Future<void> exportPortfolio() async {
+  Future<void> exportPortfolio({Rect sharePositionOrigin = Rect.zero}) async {
     emit(state.copyWith(status: SettingsStatus.busy));
-    final result = await _export();
+    final result = await _export(sharePositionOrigin: sharePositionOrigin);
     result.fold(
       (f) => emit(
         SettingsState(

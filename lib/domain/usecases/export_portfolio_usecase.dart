@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/widgets.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import 'package:intl/intl.dart';
@@ -17,7 +18,9 @@ class ExportPortfolioUseCase {
 
   final AssetRepository _repo;
 
-  Future<Either<Failure, Unit>> call() async {
+  Future<Either<Failure, Unit>> call({
+    Rect sharePositionOrigin = Rect.zero,
+  }) async {
     try {
       final result = await _repo.getAllAssetsRaw();
       return await result.fold(
@@ -36,7 +39,10 @@ class ExportPortfolioUseCase {
             '${dir.path}/portfolio_$dateStr${AppConstants.exportFileExtension}',
           );
           await file.writeAsString(content);
-          await Share.shareXFiles([XFile(file.path)]);
+          await Share.shareXFiles(
+            [XFile(file.path)],
+            sharePositionOrigin: sharePositionOrigin,
+          );
           return const Right<Failure, Unit>(unit);
         },
       );
