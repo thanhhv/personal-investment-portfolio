@@ -2,11 +2,15 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:wealth_lens/core/constants/asset_categories.dart';
 import 'package:wealth_lens/core/di/injection.dart';
 import 'package:wealth_lens/core/extensions/context_extensions.dart';
 import 'package:wealth_lens/core/theme/app_colors.dart';
+import 'package:wealth_lens/core/utils/currency_formatter.dart';
+import 'package:wealth_lens/domain/entities/asset.dart';
 import 'package:wealth_lens/presentation/blocs/currency/currency_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/dashboard/dashboard_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/dashboard/dashboard_state.dart';
@@ -34,7 +38,12 @@ class DashboardScreen extends StatelessWidget {
             ),
             IconButton(
               icon: const Icon(Icons.settings_outlined),
-              onPressed: () => context.push(AppRoutes.settings),
+              onPressed: () async {
+                await context.push(AppRoutes.settings);
+                if (context.mounted) {
+                  unawaited(context.read<DashboardCubit>().load());
+                }
+              },
             ),
           ],
         ),
@@ -42,7 +51,10 @@ class DashboardScreen extends StatelessWidget {
           builder: (context, state) {
             if (state.isLoading) return const _ShimmerList();
             if (state.status == DashboardStatus.failure) {
-              return _ErrorView(message: state.errorMessage ?? context.l10n.somethingWentWrong);
+              return _ErrorView(
+                message:
+                    state.errorMessage ?? context.l10n.somethingWentWrong,
+              );
             }
             if (state.isEmpty) return const _EmptyState();
             return _AssetListView(state: state);
@@ -161,29 +173,149 @@ class _ErrorView extends StatelessWidget {
   }
 }
 
-class _AssetListView extends StatelessWidget {
+// ─────────────────────────────────────────────────────────────────────────────
+// Asset List with category grouping
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _AssetListView extends StatefulWidget {
   const _AssetListView({required this.state});
 
   final DashboardState state;
 
   @override
+  State<_AssetListView> createState() => _AssetListViewState();
+}
+
+class _AssetListViewState extends State<_AssetListView> {
+  final Set<AssetCategory> _collapsed = {};
+
+  Map<AssetCategory, List<Asset>> _groupByCategory(List<Asset> assets) {
+    final map = <AssetCategory, List<Asset>>{};
+    for (final asset in assets) {
+      map.putIfAbsent(asset.category, () => []).add(asset);
+    }
+    return map;
+  }
+
+  List<Widget> _buildItems(BuildContext context, AppCurrency currency) {
+    final groups = _groupByCategory(widget.state.assets);
+    final items = <Widget>[];
+    var animIndex = 0;
+
+    for (final entry in groups.entries) {
+      final category = entry.key;
+      final categoryAssets = entry.value;
+      final isCollapsible = categoryAssets.length > 2;
+      final isCollapsed = _collapsed.contains(category);
+
+      items.add(
+        AnimationConfiguration.staggeredList(
+          position: animIndex++,
+          duration: const Duration(milliseconds: 375),
+          child: FadeInAnimation(
+            child: _CategoryGroupHeader(
+              category: category,
+              count: categoryAssets.length,
+              isCollapsible: isCollapsible,
+              isCollapsed: isCollapsed,
+              onToggle: isCollapsible
+                  ? () => setState(() {
+                        if (isCollapsed) {
+                          _collapsed.remove(category);
+                        } else {
+                          _collapsed.add(category);
+                        }
+                      })
+                  : null,
+            ),
+          ),
+        ),
+      );
+
+      if (!isCollapsed) {
+        for (final asset in categoryAssets) {
+          final idx = animIndex++;
+          items.add(
+            AnimationConfiguration.staggeredList(
+              position: idx,
+              duration: const Duration(milliseconds: 375),
+              child: SlideAnimation(
+                verticalOffset: 40,
+                child: FadeInAnimation(
+                  child: Slidable(
+                    key: ValueKey(asset.id),
+                    endActionPane: ActionPane(
+                      motion: const DrawerMotion(),
+                      extentRatio: 0.22,
+                      children: [
+                        CustomSlidableAction(
+                          onPressed: (_) async {
+                            final confirmed =
+                                await _confirmDelete(context, asset.name);
+                            if (confirmed && context.mounted) {
+                              unawaited(
+                                context
+                                    .read<DashboardCubit>()
+                                    .deleteAsset(asset.id),
+                              );
+                            }
+                          },
+                          backgroundColor: AppColors.loss,
+                          foregroundColor: Colors.white,
+                          borderRadius: const BorderRadius.horizontal(
+                            right: Radius.circular(16),
+                          ),
+                          child: const Icon(
+                            Icons.delete_outline,
+                            size: 26,
+                          ),
+                        ),
+                      ],
+                    ),
+                    child: AssetCard(
+                      asset: asset,
+                      currency: currency,
+                      onTap: () async {
+                        await context.push(
+                          AppRoutes.assetDetailPath(asset.id),
+                        );
+                        if (context.mounted) {
+                          unawaited(context.read<DashboardCubit>().load());
+                        }
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+      }
+    }
+
+    return items;
+  }
+
+  @override
   Widget build(BuildContext context) {
     final currency = context.read<CurrencyCubit>().state;
+    final items = _buildItems(context, currency);
+
     return AnimationLimiter(
       child: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
             child: PortfolioHeader(
-              totalValue: state.totalValue,
-              totalInvested: state.totalInvested,
-              profitLoss: state.totalProfitLoss,
-              profitLossPercent: state.totalProfitLossPercent,
+              totalValue: widget.state.totalValue,
+              totalInvested: widget.state.totalInvested,
+              profitLoss: widget.state.totalProfitLoss,
+              profitLossPercent: widget.state.totalProfitLossPercent,
               currency: currency,
             ),
           ),
-          if (state.assets.length > 1)
+          if (widget.state.assets.length > 1)
             SliverToBoxAdapter(
-              child: CategoryDonutChart(assets: state.assets),
+              child: CategoryDonutChart(assets: widget.state.assets),
             ),
           SliverToBoxAdapter(
             child: Padding(
@@ -195,63 +327,88 @@ class _AssetListView extends StatelessWidget {
             ),
           ),
           SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final asset = state.assets[index];
-                return AnimationConfiguration.staggeredList(
-                  position: index,
-                  duration: const Duration(milliseconds: 375),
-                  child: SlideAnimation(
-                    verticalOffset: 40,
-                    child: FadeInAnimation(
-                      child: Dismissible(
-                        key: ValueKey(asset.id),
-                        direction: DismissDirection.endToStart,
-                        confirmDismiss: (_) =>
-                            _confirmDelete(context, asset.name),
-                        onDismissed: (_) =>
-                            context.read<DashboardCubit>().deleteAsset(asset.id),
-                        background: Container(
-                          margin: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.loss,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          alignment: Alignment.centerRight,
-                          padding: const EdgeInsets.only(right: 24),
-                          child: const Icon(
-                            Icons.delete_outline,
-                            color: Colors.white,
-                            size: 26,
-                          ),
-                        ),
-                        child: AssetCard(
-                          asset: asset,
-                          currency: currency,
-                          onTap: () async {
-                            await context.push(
-                              AppRoutes.assetDetailPath(asset.id),
-                            );
-                            if (context.mounted) {
-                              unawaited(
-                                context.read<DashboardCubit>().load(),
-                              );
-                            }
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-              childCount: state.assets.length,
-            ),
+            delegate: SliverChildListDelegate(items),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Category group header
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _CategoryGroupHeader extends StatelessWidget {
+  const _CategoryGroupHeader({
+    required this.category,
+    required this.count,
+    required this.isCollapsible,
+    required this.isCollapsed,
+    required this.onToggle,
+  });
+
+  final AssetCategory category;
+  final int count;
+  final bool isCollapsible;
+  final bool isCollapsed;
+  final VoidCallback? onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onToggle,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 10, 16, 4),
+        child: Row(
+          children: [
+            Container(
+              width: 28,
+              height: 28,
+              decoration: BoxDecoration(
+                color: category.accentColor.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                category.icon,
+                color: category.accentColor,
+                size: 15,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Text(
+              category.label,
+              style: context.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+              decoration: BoxDecoration(
+                color: context.colorScheme.onSurface.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                '$count',
+                style: context.textTheme.labelSmall?.copyWith(
+                  color: context.colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
+              ),
+            ),
+            const Spacer(),
+            if (isCollapsible)
+              Icon(
+                isCollapsed
+                    ? Icons.keyboard_arrow_down_rounded
+                    : Icons.keyboard_arrow_up_rounded,
+                size: 20,
+                color: context.colorScheme.onSurface.withValues(alpha: 0.4),
+              ),
+          ],
+        ),
       ),
     );
   }
