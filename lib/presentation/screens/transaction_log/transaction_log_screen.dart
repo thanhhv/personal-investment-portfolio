@@ -11,6 +11,7 @@ import 'package:wealth_lens/domain/entities/transaction.dart';
 import 'package:wealth_lens/presentation/blocs/asset_detail/asset_detail_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/asset_detail/asset_detail_state.dart';
 import 'package:wealth_lens/presentation/blocs/currency/currency_cubit.dart';
+import 'package:wealth_lens/presentation/blocs/exchange_rate/exchange_rate_cubit.dart';
 import 'package:wealth_lens/presentation/widgets/add_transaction_bottom_sheet.dart';
 
 class TransactionLogScreen extends StatelessWidget {
@@ -74,6 +75,7 @@ class _TransactionLogView extends StatelessWidget {
           }
 
           final currency = context.read<CurrencyCubit>().state;
+          final rate = context.read<ExchangeRateCubit>().state;
           return ListView.separated(
             itemCount: transactions.length,
             separatorBuilder: (_, __) => const Divider(height: 1),
@@ -82,6 +84,7 @@ class _TransactionLogView extends StatelessWidget {
                 assetId: assetId,
                 transaction: transactions[index],
                 currency: currency,
+                rate: rate,
               );
             },
           );
@@ -104,11 +107,13 @@ class _TransactionTile extends StatelessWidget {
     required this.assetId,
     required this.transaction,
     required this.currency,
+    required this.rate,
   });
 
   final String assetId;
   final Transaction transaction;
   final AppCurrency currency;
+  final double rate;
 
   Color _typeColor() => switch (transaction.type) {
         TransactionType.buy => AppColors.secondary,
@@ -143,7 +148,7 @@ class _TransactionTile extends StatelessWidget {
         child: Icon(_typeIcon(), color: color, size: 18),
       ),
       title: Text(
-        CurrencyFormatter.format(transaction.amount, currency),
+        CurrencyFormatter.format(transaction.amount, currency, rate: rate),
         style: context.textTheme.titleSmall,
       ),
       subtitle: Column(

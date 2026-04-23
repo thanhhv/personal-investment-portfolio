@@ -380,6 +380,12 @@ class AppLocalizationsVi extends AppLocalizations {
   String get cannotBeUndone => 'Hành động này không thể hoàn tác.';
 
   @override
+  String get exchangeRate => 'Tỷ giá hối đoái';
+
+  @override
+  String get exchangeRateHint => 'ví dụ: 25000';
+
+  @override
   String get skip => 'Bỏ qua';
 
   @override

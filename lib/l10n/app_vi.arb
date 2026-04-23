@@ -151,6 +151,9 @@
   "deleteTransaction": "Xóa giao dịch",
   "cannotBeUndone": "Hành động này không thể hoàn tác.",
 
+  "exchangeRate": "Tỷ giá hối đoái",
+  "exchangeRateHint": "ví dụ: 25000",
+
   "skip": "Bỏ qua",
   "next": "Tiếp theo",
   "getStarted": "Bắt đầu",

@@ -5,6 +5,7 @@ import 'package:wealth_lens/core/extensions/context_extensions.dart';
 import 'package:wealth_lens/core/theme/app_colors.dart';
 import 'package:wealth_lens/core/utils/currency_formatter.dart';
 import 'package:wealth_lens/presentation/blocs/currency/currency_cubit.dart';
+import 'package:wealth_lens/presentation/blocs/exchange_rate/exchange_rate_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/locale/locale_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/settings/settings_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/settings/settings_state.dart';
@@ -200,6 +201,15 @@ class _SettingsView extends StatelessWidget {
                   );
                 },
               ),
+              // ── Exchange Rate ──────────────────────────────────────────────
+              BlocBuilder<CurrencyCubit, AppCurrency>(
+                builder: (context, currency) {
+                  if (currency != AppCurrency.vnd) return const SizedBox.shrink();
+                  return BlocBuilder<ExchangeRateCubit, double>(
+                    builder: (context, rate) => _ExchangeRateRow(initialRate: rate),
+                  );
+                },
+              ),
               const Divider(),
               _SectionHeader(label: context.l10n.about),
               ListTile(
@@ -264,6 +274,71 @@ class _ToggleRow extends StatelessWidget {
                 const SizedBox(height: 6),
                 child,
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ExchangeRateRow extends StatefulWidget {
+  const _ExchangeRateRow({required this.initialRate});
+
+  final double initialRate;
+
+  @override
+  State<_ExchangeRateRow> createState() => _ExchangeRateRowState();
+}
+
+class _ExchangeRateRowState extends State<_ExchangeRateRow> {
+  late final TextEditingController _ctrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = TextEditingController(
+      text: widget.initialRate.toStringAsFixed(0),
+    );
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    final v = double.tryParse(_ctrl.text.replaceAll(',', ''));
+    if (v != null && v > 0) {
+      context.read<ExchangeRateCubit>().setRate(v);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+      child: Row(
+        children: [
+          Icon(
+            Icons.swap_horiz_outlined,
+            color: context.colorScheme.onSurfaceVariant,
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: TextField(
+              controller: _ctrl,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText: l.exchangeRate,
+                hintText: l.exchangeRateHint,
+                prefixText: '1 USD = ',
+                suffixText: 'VND',
+              ),
+              onSubmitted: (_) => _submit(),
+              onEditingComplete: _submit,
             ),
           ),
         ],

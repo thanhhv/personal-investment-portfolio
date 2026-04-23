@@ -392,6 +392,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cannotBeUndone => 'This cannot be undone.';
 
   @override
+  String get exchangeRate => 'Exchange Rate';
+
+  @override
+  String get exchangeRateHint => 'e.g. 25000';
+
+  @override
   String get skip => 'Skip';
 
   @override

@@ -153,6 +153,9 @@
   "deleteTransaction": "Delete Transaction",
   "cannotBeUndone": "This cannot be undone.",
 
+  "exchangeRate": "Exchange Rate",
+  "exchangeRateHint": "e.g. 25000",
+
   "skip": "Skip",
   "next": "Next",
   "getStarted": "Get Started",

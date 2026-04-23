@@ -818,6 +818,18 @@ abstract class AppLocalizations {
   /// **'This cannot be undone.'**
   String get cannotBeUndone;
 
+  /// No description provided for @exchangeRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Exchange Rate'**
+  String get exchangeRate;
+
+  /// No description provided for @exchangeRateHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 25000'**
+  String get exchangeRateHint;
+
   /// No description provided for @skip.
   ///
   /// In en, this message translates to:
