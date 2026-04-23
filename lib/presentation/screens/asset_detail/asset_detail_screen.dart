@@ -16,6 +16,7 @@ import 'package:wealth_lens/domain/entities/transaction.dart';
 import 'package:wealth_lens/presentation/blocs/asset_detail/asset_detail_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/asset_detail/asset_detail_state.dart';
 import 'package:wealth_lens/presentation/blocs/currency/currency_cubit.dart';
+import 'package:wealth_lens/presentation/blocs/exchange_rate/exchange_rate_cubit.dart';
 import 'package:wealth_lens/presentation/routes/app_router.dart';
 import 'package:wealth_lens/presentation/widgets/add_transaction_bottom_sheet.dart';
 
@@ -118,6 +119,7 @@ class _AssetDetailContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final currency = context.read<CurrencyCubit>().state;
+    final rate = context.read<ExchangeRateCubit>().state;
     final sortedHistory = [...asset.priceHistory]
       ..sort((a, b) => a.date.compareTo(b.date));
     final sortedTx = [...asset.transactions]
@@ -147,13 +149,14 @@ class _AssetDetailContent extends StatelessWidget {
       ),
       body: ListView(
         children: [
-          _AssetHeader(asset: asset, currency: currency),
+          _AssetHeader(asset: asset, currency: currency, rate: rate),
           if (sortedHistory.length >= 2)
             _PriceChart(history: sortedHistory),
           _TransactionsSection(
             assetId: assetId,
             transactions: sortedTx,
             currency: currency,
+            rate: rate,
           ),
           const SizedBox(height: 100),
         ],
@@ -172,10 +175,15 @@ class _AssetDetailContent extends StatelessWidget {
 }
 
 class _AssetHeader extends StatelessWidget {
-  const _AssetHeader({required this.asset, required this.currency});
+  const _AssetHeader({
+    required this.asset,
+    required this.currency,
+    required this.rate,
+  });
 
   final Asset asset;
   final AppCurrency currency;
+  final double rate;
 
   @override
   Widget build(BuildContext context) {
@@ -244,7 +252,7 @@ class _AssetHeader extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               Text(
-                CurrencyFormatter.format(asset.currentValue, currency),
+                CurrencyFormatter.format(asset.currentValue, currency, rate: rate),
                 style: AppTextStyles.portfolioTotal.copyWith(
                   color: Colors.white,
                 ),
@@ -257,13 +265,14 @@ class _AssetHeader extends StatelessWidget {
                     value: CurrencyFormatter.formatCompact(
                       asset.totalInvested,
                       currency,
+                      rate: rate,
                     ),
                   ),
                   const SizedBox(width: 8),
                   _InfoChip(
                     label: l.pAndL,
                     value:
-                        '${CurrencyFormatter.formatCompact(asset.profitLoss.abs(), currency)} '
+                        '${CurrencyFormatter.formatCompact(asset.profitLoss.abs(), currency, rate: rate)} '
                         '(${CurrencyFormatter.formatPercent(asset.profitLossPercent)})',
                     color: plColor,
                   ),
@@ -383,11 +392,13 @@ class _TransactionsSection extends StatelessWidget {
     required this.assetId,
     required this.transactions,
     required this.currency,
+    required this.rate,
   });
 
   final String assetId;
   final List<Transaction> transactions;
   final AppCurrency currency;
+  final double rate;
 
   @override
   Widget build(BuildContext context) {
@@ -428,6 +439,7 @@ class _TransactionsSection extends StatelessWidget {
                   assetId: assetId,
                   transaction: tx,
                   currency: currency,
+                  rate: rate,
                 ),
               ),
       ],
@@ -440,11 +452,13 @@ class _TransactionTile extends StatelessWidget {
     required this.assetId,
     required this.transaction,
     required this.currency,
+    required this.rate,
   });
 
   final String assetId;
   final Transaction transaction;
   final AppCurrency currency;
+  final double rate;
 
   Color _typeColor() => switch (transaction.type) {
         TransactionType.buy => AppColors.secondary,
@@ -481,7 +495,7 @@ class _TransactionTile extends StatelessWidget {
         ),
       ),
       title: Text(
-        CurrencyFormatter.format(transaction.amount, currency),
+        CurrencyFormatter.format(transaction.amount, currency, rate: rate),
         style: context.textTheme.titleSmall,
       ),
       subtitle: Text(

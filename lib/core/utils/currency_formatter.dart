@@ -27,16 +27,24 @@ abstract final class CurrencyFormatter {
     decimalDigits: 2,
   );
 
-  static String format(double amount, AppCurrency currency) {
+  static String format(
+    double amount,
+    AppCurrency currency, {
+    double rate = 25000,
+  }) {
     return switch (currency) {
-      AppCurrency.vnd => _vndFormat.format(amount),
+      AppCurrency.vnd => _vndFormat.format(amount * rate),
       AppCurrency.usd => _usdFormat.format(amount),
     };
   }
 
-  static String formatCompact(double amount, AppCurrency currency) {
+  static String formatCompact(
+    double amount,
+    AppCurrency currency, {
+    double rate = 25000,
+  }) {
     return switch (currency) {
-      AppCurrency.vnd => _compactVnd.format(amount),
+      AppCurrency.vnd => _compactVnd.format(amount * rate),
       AppCurrency.usd => _compactUsd.format(amount),
     };
   }

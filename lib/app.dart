@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:wealth_lens/core/theme/app_theme.dart';
 import 'package:wealth_lens/l10n/app_localizations.dart';
 import 'package:wealth_lens/presentation/blocs/currency/currency_cubit.dart';
+import 'package:wealth_lens/presentation/blocs/exchange_rate/exchange_rate_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/locale/locale_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/theme/theme_cubit.dart';
 import 'package:wealth_lens/presentation/routes/app_router.dart';
@@ -18,6 +19,7 @@ class WealthLensApp extends StatelessWidget {
         BlocProvider(create: (_) => ThemeCubit()..load()),
         BlocProvider(create: (_) => LocaleCubit()..load()),
         BlocProvider(create: (_) => CurrencyCubit()..load()),
+        BlocProvider(create: (_) => ExchangeRateCubit()..load()),
       ],
       child: BlocBuilder<ThemeCubit, ThemeMode>(
         builder: (context, themeMode) {

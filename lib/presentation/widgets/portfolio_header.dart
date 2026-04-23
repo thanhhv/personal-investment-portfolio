@@ -11,6 +11,7 @@ class PortfolioHeader extends StatelessWidget {
     required this.profitLoss,
     required this.profitLossPercent,
     required this.currency,
+    required this.rate,
     super.key,
   });
 
@@ -19,6 +20,7 @@ class PortfolioHeader extends StatelessWidget {
   final double profitLoss;
   final double profitLossPercent;
   final AppCurrency currency;
+  final double rate;
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +56,7 @@ class PortfolioHeader extends StatelessWidget {
             duration: const Duration(milliseconds: 800),
             curve: Curves.easeOut,
             builder: (context, value, _) => Text(
-              CurrencyFormatter.format(value, currency),
+              CurrencyFormatter.format(value, currency, rate: rate),
               style: AppTextStyles.portfolioTotal.copyWith(color: Colors.white),
             ),
           ),
@@ -63,13 +65,18 @@ class PortfolioHeader extends StatelessWidget {
             children: [
               _StatChip(
                 label: context.l10n.invested,
-                value: CurrencyFormatter.formatCompact(totalInvested, currency),
+                value: CurrencyFormatter.formatCompact(
+                  totalInvested,
+                  currency,
+                  rate: rate,
+                ),
               ),
               const SizedBox(width: 8),
               _ProfitLossChip(
                 profitLoss: profitLoss,
                 percent: profitLossPercent,
                 currency: currency,
+                rate: rate,
                 isProfit: isProfit,
               ),
             ],
@@ -121,12 +128,14 @@ class _ProfitLossChip extends StatelessWidget {
     required this.profitLoss,
     required this.percent,
     required this.currency,
+    required this.rate,
     required this.isProfit,
   });
 
   final double profitLoss;
   final double percent;
   final AppCurrency currency;
+  final double rate;
   final bool isProfit;
 
   @override
@@ -156,7 +165,7 @@ class _ProfitLossChip extends StatelessWidget {
                     ),
               ),
               Text(
-                '${CurrencyFormatter.formatCompact(profitLoss.abs(), currency)} '
+                '${CurrencyFormatter.formatCompact(profitLoss.abs(), currency, rate: rate)} '
                 '(${CurrencyFormatter.formatPercent(percent)})',
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
                       color: Colors.white,

@@ -78,7 +78,7 @@ class CategoryDonutChart extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 24),
               Expanded(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,

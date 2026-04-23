@@ -9,12 +9,14 @@ class AssetCard extends StatelessWidget {
   const AssetCard({
     required this.asset,
     required this.currency,
+    required this.rate,
     this.onTap,
     super.key,
   });
 
   final Asset asset;
   final AppCurrency currency;
+  final double rate;
   final VoidCallback? onTap;
 
   @override
@@ -75,7 +77,7 @@ class AssetCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      CurrencyFormatter.format(asset.currentValue, currency),
+                      CurrencyFormatter.format(asset.currentValue, currency, rate: rate),
                       style: context.textTheme.titleMedium,
                     ),
                     const SizedBox(height: 4),

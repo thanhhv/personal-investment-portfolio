@@ -12,6 +12,7 @@ import 'package:wealth_lens/core/theme/app_colors.dart';
 import 'package:wealth_lens/core/utils/currency_formatter.dart';
 import 'package:wealth_lens/domain/entities/asset.dart';
 import 'package:wealth_lens/presentation/blocs/currency/currency_cubit.dart';
+import 'package:wealth_lens/presentation/blocs/exchange_rate/exchange_rate_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/dashboard/dashboard_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/dashboard/dashboard_state.dart';
 import 'package:wealth_lens/presentation/routes/app_router.dart';
@@ -197,7 +198,7 @@ class _AssetListViewState extends State<_AssetListView> {
     return map;
   }
 
-  List<Widget> _buildItems(BuildContext context, AppCurrency currency) {
+  List<Widget> _buildItems(BuildContext context, AppCurrency currency, double rate) {
     final groups = _groupByCategory(widget.state.assets);
     final items = <Widget>[];
     var animIndex = 0;
@@ -205,7 +206,7 @@ class _AssetListViewState extends State<_AssetListView> {
     for (final entry in groups.entries) {
       final category = entry.key;
       final categoryAssets = entry.value;
-      final isCollapsible = categoryAssets.length > 2;
+      final isCollapsible = categoryAssets.length > 1;
       final isCollapsed = _collapsed.contains(category);
 
       items.add(
@@ -275,6 +276,7 @@ class _AssetListViewState extends State<_AssetListView> {
                     child: AssetCard(
                       asset: asset,
                       currency: currency,
+                      rate: rate,
                       onTap: () async {
                         await context.push(
                           AppRoutes.assetDetailPath(asset.id),
@@ -298,8 +300,9 @@ class _AssetListViewState extends State<_AssetListView> {
 
   @override
   Widget build(BuildContext context) {
-    final currency = context.read<CurrencyCubit>().state;
-    final items = _buildItems(context, currency);
+    final currency = context.watch<CurrencyCubit>().state;
+    final rate = context.watch<ExchangeRateCubit>().state;
+    final items = _buildItems(context, currency, rate);
 
     return AnimationLimiter(
       child: CustomScrollView(
@@ -311,6 +314,7 @@ class _AssetListViewState extends State<_AssetListView> {
               profitLoss: widget.state.totalProfitLoss,
               profitLossPercent: widget.state.totalProfitLossPercent,
               currency: currency,
+              rate: rate,
             ),
           ),
           if (widget.state.assets.length > 1)

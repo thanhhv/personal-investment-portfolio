@@ -11,6 +11,7 @@ import 'package:wealth_lens/domain/entities/asset.dart';
 import 'package:wealth_lens/presentation/blocs/analytics/analytics_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/analytics/analytics_state.dart';
 import 'package:wealth_lens/presentation/blocs/currency/currency_cubit.dart';
+import 'package:wealth_lens/presentation/blocs/exchange_rate/exchange_rate_cubit.dart';
 
 class AnalyticsScreen extends StatelessWidget {
   const AnalyticsScreen({super.key});
@@ -135,6 +136,7 @@ class _SummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final currency = context.read<CurrencyCubit>().state;
+    final rate = context.read<ExchangeRateCubit>().state;
 
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
@@ -161,7 +163,7 @@ class _SummaryCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            CurrencyFormatter.format(data.totalValue, currency),
+            CurrencyFormatter.format(data.totalValue, currency, rate: rate),
             style: AppTextStyles.portfolioTotal.copyWith(color: Colors.white),
           ),
           const SizedBox(height: 12),
@@ -172,13 +174,14 @@ class _SummaryCard extends StatelessWidget {
                 value: CurrencyFormatter.formatCompact(
                   data.totalInvested,
                   currency,
+                  rate: rate,
                 ),
               ),
               const SizedBox(width: 8),
               _SummaryChip(
                 label: isProfit ? l.gain : l.loss,
                 value:
-                    '${CurrencyFormatter.formatCompact(data.totalProfitLoss.abs(), currency)}'
+                    '${CurrencyFormatter.formatCompact(data.totalProfitLoss.abs(), currency, rate: rate)}'
                     ' (${CurrencyFormatter.formatPercent(data.totalProfitLossPercent)})',
                 icon: isProfit
                     ? Icons.trending_up_rounded
@@ -254,6 +257,7 @@ class _PerformanceChart extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final currency = context.read<CurrencyCubit>().state;
+    final rate = context.read<ExchangeRateCubit>().state;
     final timeline = data.timeline;
     final investedSpots = timeline.asMap().entries.map((e) {
       return FlSpot(e.key.toDouble(), e.value.totalInvested);
@@ -331,7 +335,7 @@ class _PerformanceChart extends StatelessWidget {
                           idx < timeline.length ? timeline[idx] : null;
                       return LineTooltipItem(
                         point != null
-                            ? CurrencyFormatter.format(s.y, currency)
+                            ? CurrencyFormatter.format(s.y, currency, rate: rate)
                             : '',
                         context.textTheme.labelSmall!
                             .copyWith(color: Colors.white),
@@ -410,6 +414,7 @@ class _RankingSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currency = context.read<CurrencyCubit>().state;
+    final rate = context.read<ExchangeRateCubit>().state;
 
     return _ChartCard(
       title: title,
@@ -446,7 +451,7 @@ class _RankingSection extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
-                        CurrencyFormatter.format(asset.currentValue, currency),
+                        CurrencyFormatter.format(asset.currentValue, currency, rate: rate),
                         style: context.textTheme.bodySmall?.copyWith(
                           color: context.colorScheme.onSurface
                               .withValues(alpha: 0.55),
@@ -565,6 +570,7 @@ class _CategoryRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currency = context.read<CurrencyCubit>().state;
+    final rate = context.read<ExchangeRateCubit>().state;
     final isProfit = item.profitLoss >= 0;
     final plColor = isProfit ? AppColors.profit : AppColors.loss;
 
@@ -603,7 +609,7 @@ class _CategoryRow extends StatelessWidget {
           Expanded(
             flex: 3,
             child: Text(
-              CurrencyFormatter.formatCompact(item.totalValue, currency),
+              CurrencyFormatter.formatCompact(item.totalValue, currency, rate: rate),
               style: context.textTheme.bodySmall,
               textAlign: TextAlign.end,
             ),
