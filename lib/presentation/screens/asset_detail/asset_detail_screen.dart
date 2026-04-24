@@ -15,6 +15,7 @@ import 'package:wealth_lens/domain/entities/price_point.dart';
 import 'package:wealth_lens/domain/entities/transaction.dart';
 import 'package:wealth_lens/presentation/blocs/asset_detail/asset_detail_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/asset_detail/asset_detail_state.dart';
+import 'package:wealth_lens/presentation/blocs/balance_visibility/balance_visibility_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/currency/currency_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/exchange_rate/exchange_rate_cubit.dart';
 import 'package:wealth_lens/presentation/routes/app_router.dart';
@@ -120,6 +121,7 @@ class _AssetDetailContent extends StatelessWidget {
     final l = context.l10n;
     final currency = context.read<CurrencyCubit>().state;
     final rate = context.read<ExchangeRateCubit>().state;
+    final isHidden = !context.watch<BalanceVisibilityCubit>().state;
     final sortedHistory = [...asset.priceHistory]
       ..sort((a, b) => a.date.compareTo(b.date));
     final sortedTx = [...asset.transactions]
@@ -149,7 +151,11 @@ class _AssetDetailContent extends StatelessWidget {
       ),
       body: ListView(
         children: [
-          _AssetHeader(asset: asset, currency: currency, rate: rate),
+          _AssetHeader(
+              asset: asset,
+              currency: currency,
+              rate: rate,
+              isHidden: isHidden,),
           if (sortedHistory.length >= 2)
             _PriceChart(history: sortedHistory),
           _TransactionsSection(
@@ -157,6 +163,7 @@ class _AssetDetailContent extends StatelessWidget {
             transactions: sortedTx,
             currency: currency,
             rate: rate,
+            isHidden: isHidden,
           ),
           const SizedBox(height: 100),
         ],
@@ -164,7 +171,7 @@ class _AssetDetailContent extends StatelessWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => AddTransactionBottomSheet.show(
           context,
-          assetId: assetId,
+          asset: asset,
           onAdded: () => context.read<AssetDetailCubit>().load(assetId),
         ),
         icon: const Icon(Icons.add),
@@ -174,16 +181,20 @@ class _AssetDetailContent extends StatelessWidget {
   }
 }
 
+const _kMasked = '•••';
+
 class _AssetHeader extends StatelessWidget {
   const _AssetHeader({
     required this.asset,
     required this.currency,
     required this.rate,
+    required this.isHidden,
   });
 
   final Asset asset;
   final AppCurrency currency;
   final double rate;
+  final bool isHidden;
 
   @override
   Widget build(BuildContext context) {
@@ -252,7 +263,10 @@ class _AssetHeader extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               Text(
-                CurrencyFormatter.format(asset.currentValue, currency, rate: rate),
+                isHidden
+                    ? _kMasked
+                    : CurrencyFormatter.format(asset.currentValue, currency,
+                        rate: rate,),
                 style: AppTextStyles.portfolioTotal.copyWith(
                   color: Colors.white,
                 ),
@@ -262,18 +276,18 @@ class _AssetHeader extends StatelessWidget {
                 children: [
                   _InfoChip(
                     label: l.invested,
-                    value: CurrencyFormatter.formatCompact(
-                      asset.totalInvested,
-                      currency,
-                      rate: rate,
-                    ),
+                    value: isHidden
+                        ? _kMasked
+                        : CurrencyFormatter.formatCompact(
+                            asset.totalInvested, currency, rate: rate,),
                   ),
                   const SizedBox(width: 8),
                   _InfoChip(
                     label: l.pAndL,
-                    value:
-                        '${CurrencyFormatter.formatCompact(asset.profitLoss.abs(), currency, rate: rate)} '
-                        '(${CurrencyFormatter.formatPercent(asset.profitLossPercent)})',
+                    value: isHidden
+                        ? _kMasked
+                        : '${CurrencyFormatter.formatCompact(asset.profitLoss.abs(), currency, rate: rate)} '
+                            '(${CurrencyFormatter.formatPercent(asset.profitLossPercent)})',
                     color: plColor,
                   ),
                 ],
@@ -393,12 +407,14 @@ class _TransactionsSection extends StatelessWidget {
     required this.transactions,
     required this.currency,
     required this.rate,
+    required this.isHidden,
   });
 
   final String assetId;
   final List<Transaction> transactions;
   final AppCurrency currency;
   final double rate;
+  final bool isHidden;
 
   @override
   Widget build(BuildContext context) {
@@ -440,6 +456,7 @@ class _TransactionsSection extends StatelessWidget {
                   transaction: tx,
                   currency: currency,
                   rate: rate,
+                  isHidden: isHidden,
                 ),
               ),
       ],
@@ -453,12 +470,14 @@ class _TransactionTile extends StatelessWidget {
     required this.transaction,
     required this.currency,
     required this.rate,
+    required this.isHidden,
   });
 
   final String assetId;
   final Transaction transaction;
   final AppCurrency currency;
   final double rate;
+  final bool isHidden;
 
   Color _typeColor() => switch (transaction.type) {
         TransactionType.buy => AppColors.secondary,
@@ -495,7 +514,10 @@ class _TransactionTile extends StatelessWidget {
         ),
       ),
       title: Text(
-        CurrencyFormatter.format(transaction.amount, currency, rate: rate),
+        isHidden
+            ? _kMasked
+            : CurrencyFormatter.format(transaction.amount, currency,
+                rate: rate,),
         style: context.textTheme.titleSmall,
       ),
       subtitle: Text(

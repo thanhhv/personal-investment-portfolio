@@ -347,13 +347,25 @@ class AppLocalizationsVi extends AppLocalizations {
   String get quantityOptional => 'Số lượng (tùy chọn)';
 
   @override
+  String get quantityRequired => 'Số lượng *';
+
+  @override
   String get pricePerUnitOptional => 'Giá mỗi đơn vị (tùy chọn)';
+
+  @override
+  String get pricePerUnit => 'Giá mỗi đơn vị *';
 
   @override
   String get currentValueOptional => 'Giá trị hiện tại (tùy chọn)';
 
   @override
-  String get leaveBlankHint => 'Để trống nếu bằng số tiền đầu tư';
+  String get currentPricePerUnit => 'Giá hiện tại mỗi đơn vị (tùy chọn)';
+
+  @override
+  String get totalInvestedCalculated => 'Tổng đầu tư (tự động)';
+
+  @override
+  String get leaveBlankHint => 'Để trống nếu chưa biết';
 
   @override
   String get notesOptional => 'Ghi chú (tùy chọn)';
@@ -372,6 +384,10 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get noteOptional => 'Ghi chú (tùy chọn)';
+
+  @override
+  String get sellExceedsValue =>
+      'Giá trị bán vượt quá giá trị tài sản hiện tại';
 
   @override
   String get deleteTransaction => 'Xóa giao dịch';

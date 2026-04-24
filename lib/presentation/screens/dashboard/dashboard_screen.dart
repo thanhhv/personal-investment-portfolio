@@ -11,6 +11,7 @@ import 'package:wealth_lens/core/extensions/context_extensions.dart';
 import 'package:wealth_lens/core/theme/app_colors.dart';
 import 'package:wealth_lens/core/utils/currency_formatter.dart';
 import 'package:wealth_lens/domain/entities/asset.dart';
+import 'package:wealth_lens/presentation/blocs/balance_visibility/balance_visibility_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/currency/currency_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/dashboard/dashboard_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/dashboard/dashboard_state.dart';
@@ -26,6 +27,7 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isVisible = context.watch<BalanceVisibilityCubit>().state;
     return BlocProvider(
       create: (_) => getIt<DashboardCubit>()..load(),
       child: Scaffold(
@@ -33,6 +35,15 @@ class DashboardScreen extends StatelessWidget {
           title: Text(context.l10n.appName),
           centerTitle: false,
           actions: [
+            IconButton(
+              icon: Icon(
+                isVisible
+                    ? Icons.visibility_outlined
+                    : Icons.visibility_off_outlined,
+              ),
+              onPressed: () =>
+                  context.read<BalanceVisibilityCubit>().toggle(),
+            ),
             IconButton(
               icon: const Icon(Icons.bar_chart_outlined),
               onPressed: () => context.push(AppRoutes.analytics),
@@ -198,7 +209,7 @@ class _AssetListViewState extends State<_AssetListView> {
     return map;
   }
 
-  List<Widget> _buildItems(BuildContext context, AppCurrency currency, double rate) {
+  List<Widget> _buildItems(BuildContext context, AppCurrency currency, double rate, bool isHidden) {
     final groups = _groupByCategory(widget.state.assets);
     final items = <Widget>[];
     var animIndex = 0;
@@ -277,6 +288,7 @@ class _AssetListViewState extends State<_AssetListView> {
                       asset: asset,
                       currency: currency,
                       rate: rate,
+                      isHidden: isHidden,
                       onTap: () async {
                         await context.push(
                           AppRoutes.assetDetailPath(asset.id),
@@ -302,7 +314,8 @@ class _AssetListViewState extends State<_AssetListView> {
   Widget build(BuildContext context) {
     final currency = context.watch<CurrencyCubit>().state;
     final rate = context.watch<ExchangeRateCubit>().state;
-    final items = _buildItems(context, currency, rate);
+    final isHidden = !context.watch<BalanceVisibilityCubit>().state;
+    final items = _buildItems(context, currency, rate, isHidden);
 
     return AnimationLimiter(
       child: CustomScrollView(
@@ -315,6 +328,7 @@ class _AssetListViewState extends State<_AssetListView> {
               profitLossPercent: widget.state.totalProfitLossPercent,
               currency: currency,
               rate: rate,
+              isHidden: isHidden,
             ),
           ),
           if (widget.state.assets.length > 1)

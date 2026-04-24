@@ -10,6 +10,7 @@ import 'package:wealth_lens/core/utils/date_formatter.dart';
 import 'package:wealth_lens/domain/entities/transaction.dart';
 import 'package:wealth_lens/presentation/blocs/asset_detail/asset_detail_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/asset_detail/asset_detail_state.dart';
+import 'package:wealth_lens/presentation/blocs/balance_visibility/balance_visibility_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/currency/currency_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/exchange_rate/exchange_rate_cubit.dart';
 import 'package:wealth_lens/presentation/widgets/add_transaction_bottom_sheet.dart';
@@ -76,6 +77,7 @@ class _TransactionLogView extends StatelessWidget {
 
           final currency = context.read<CurrencyCubit>().state;
           final rate = context.read<ExchangeRateCubit>().state;
+          final isHidden = !context.watch<BalanceVisibilityCubit>().state;
           return ListView.separated(
             itemCount: transactions.length,
             separatorBuilder: (_, __) => const Divider(height: 1),
@@ -85,22 +87,29 @@ class _TransactionLogView extends StatelessWidget {
                 transaction: transactions[index],
                 currency: currency,
                 rate: rate,
+                isHidden: isHidden,
               );
             },
           );
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => AddTransactionBottomSheet.show(
-          context,
-          assetId: assetId,
-          onAdded: () => context.read<AssetDetailCubit>().load(assetId),
-        ),
+        onPressed: () {
+          final asset = context.read<AssetDetailCubit>().state.asset;
+          if (asset == null) return;
+          AddTransactionBottomSheet.show(
+            context,
+            asset: asset,
+            onAdded: () => context.read<AssetDetailCubit>().load(assetId),
+          );
+        },
         child: const Icon(Icons.add),
       ),
     );
   }
 }
+
+const _kMasked = '•••';
 
 class _TransactionTile extends StatelessWidget {
   const _TransactionTile({
@@ -108,12 +117,14 @@ class _TransactionTile extends StatelessWidget {
     required this.transaction,
     required this.currency,
     required this.rate,
+    required this.isHidden,
   });
 
   final String assetId;
   final Transaction transaction;
   final AppCurrency currency;
   final double rate;
+  final bool isHidden;
 
   Color _typeColor() => switch (transaction.type) {
         TransactionType.buy => AppColors.secondary,
@@ -148,7 +159,10 @@ class _TransactionTile extends StatelessWidget {
         child: Icon(_typeIcon(), color: color, size: 18),
       ),
       title: Text(
-        CurrencyFormatter.format(transaction.amount, currency, rate: rate),
+        isHidden
+            ? _kMasked
+            : CurrencyFormatter.format(transaction.amount, currency,
+                rate: rate,),
         style: context.textTheme.titleSmall,
       ),
       subtitle: Column(

@@ -6,12 +6,16 @@ import 'package:wealth_lens/core/di/injection.dart';
 import 'package:wealth_lens/core/extensions/context_extensions.dart';
 import 'package:wealth_lens/core/extensions/string_extensions.dart';
 import 'package:wealth_lens/core/theme/app_colors.dart';
+import 'package:wealth_lens/core/utils/currency_formatter.dart';
 import 'package:wealth_lens/core/utils/date_formatter.dart';
+import 'package:wealth_lens/core/utils/thousand_separator_formatter.dart';
 import 'package:wealth_lens/domain/entities/asset.dart';
 import 'package:wealth_lens/domain/entities/price_point.dart';
 import 'package:wealth_lens/domain/entities/transaction.dart';
 import 'package:wealth_lens/presentation/blocs/asset_form/asset_form_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/asset_form/asset_form_state.dart';
+import 'package:wealth_lens/presentation/blocs/currency/currency_cubit.dart';
+import 'package:wealth_lens/presentation/blocs/exchange_rate/exchange_rate_cubit.dart';
 
 class AddEditAssetScreen extends StatelessWidget {
   const AddEditAssetScreen({this.asset, super.key});
@@ -42,10 +46,9 @@ class _AddEditAssetViewState extends State<_AddEditAssetView> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameCtrl;
   late final TextEditingController _notesCtrl;
-  late final TextEditingController _investedCtrl;
   late final TextEditingController _quantityCtrl;
   late final TextEditingController _ppuCtrl;
-  late final TextEditingController _currentValueCtrl;
+  late final TextEditingController _currentPpuCtrl;
   final TextEditingController _tagCtrl = TextEditingController();
 
   AssetCategory? _category;
@@ -58,10 +61,9 @@ class _AddEditAssetViewState extends State<_AddEditAssetView> {
     final a = widget.asset;
     _nameCtrl = TextEditingController(text: a?.name ?? '');
     _notesCtrl = TextEditingController(text: a?.notes ?? '');
-    _investedCtrl = TextEditingController();
     _quantityCtrl = TextEditingController();
     _ppuCtrl = TextEditingController();
-    _currentValueCtrl = TextEditingController();
+    _currentPpuCtrl = TextEditingController();
     _category = a?.category;
     _tags = List<String>.from(a?.tags ?? []);
 
@@ -70,7 +72,6 @@ class _AddEditAssetViewState extends State<_AddEditAssetView> {
           .where((t) => t.type == TransactionType.buy)
           .lastOrNull;
       if (buyTx != null) {
-        _investedCtrl.text = buyTx.amount.toString();
         _purchaseDate = buyTx.date;
         if (buyTx.quantity != null) {
           _quantityCtrl.text = buyTx.quantity!.toString();
@@ -79,24 +80,28 @@ class _AddEditAssetViewState extends State<_AddEditAssetView> {
           _ppuCtrl.text = buyTx.pricePerUnit!.toString();
         }
       }
-      if (a.priceHistory.isNotEmpty) {
-        final sorted = [...a.priceHistory]
-          ..sort((x, y) => x.date.compareTo(y.date));
-        _currentValueCtrl.text = sorted.last.value.toString();
-      }
     }
+
+    _ppuCtrl.addListener(() => setState(() {}));
+    _quantityCtrl.addListener(() => setState(() {}));
   }
 
   @override
   void dispose() {
     _nameCtrl.dispose();
     _notesCtrl.dispose();
-    _investedCtrl.dispose();
     _quantityCtrl.dispose();
     _ppuCtrl.dispose();
-    _currentValueCtrl.dispose();
+    _currentPpuCtrl.dispose();
     _tagCtrl.dispose();
     super.dispose();
+  }
+
+  double? get _calculatedTotal {
+    final ppu = double.tryParse(_ppuCtrl.text.replaceAll(',', ''));
+    final qty = double.tryParse(_quantityCtrl.text.replaceAll(',', ''));
+    if (ppu != null && qty != null && ppu > 0 && qty > 0) return ppu * qty;
+    return null;
   }
 
   Asset _buildAsset() {
@@ -114,18 +119,19 @@ class _AddEditAssetViewState extends State<_AddEditAssetView> {
       );
     }
 
-    final amount = double.parse(
-      _investedCtrl.text.trim().replaceAll(',', '.'),
-    );
-    final qty = _quantityCtrl.text.trim().isEmpty
+    final currency = context.read<CurrencyCubit>().state;
+    final rate = context.read<ExchangeRateCubit>().state;
+    final ppuRaw = double.parse(_ppuCtrl.text.replaceAll(',', ''));
+    final ppuStored =
+        currency == AppCurrency.vnd ? ppuRaw / rate : ppuRaw;
+    final qty = double.parse(_quantityCtrl.text.replaceAll(',', ''));
+    final amount = ppuStored * qty;
+    final currentPpuRaw = _currentPpuCtrl.text.trim().isEmpty
         ? null
-        : double.tryParse(_quantityCtrl.text.trim().replaceAll(',', '.'));
-    final ppu = _ppuCtrl.text.trim().isEmpty
+        : double.tryParse(_currentPpuCtrl.text.replaceAll(',', ''));
+    final currentPpuStored = currentPpuRaw == null
         ? null
-        : double.tryParse(_ppuCtrl.text.trim().replaceAll(',', '.'));
-    final cv = _currentValueCtrl.text.trim().isEmpty
-        ? null
-        : double.tryParse(_currentValueCtrl.text.trim().replaceAll(',', '.'));
+        : (currency == AppCurrency.vnd ? currentPpuRaw / rate : currentPpuRaw);
 
     return Asset(
       id: '',
@@ -139,12 +145,12 @@ class _AddEditAssetViewState extends State<_AddEditAssetView> {
           type: TransactionType.buy,
           amount: amount,
           quantity: qty,
-          pricePerUnit: ppu,
+          pricePerUnit: ppuStored,
           date: _purchaseDate,
         ),
       ],
-      priceHistory: cv != null
-          ? [PricePoint(date: now, value: cv)]
+      priceHistory: currentPpuStored != null
+          ? [PricePoint(date: now, value: currentPpuStored * qty)]
           : const [],
       createdAt: now,
       updatedAt: now,
@@ -171,9 +177,15 @@ class _AddEditAssetViewState extends State<_AddEditAssetView> {
     _tagCtrl.clear();
   }
 
+  String _currencyPrefix(BuildContext context) {
+    final currency = context.read<CurrencyCubit>().state;
+    return currency == AppCurrency.vnd ? '₫' : r'$';
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    final prefix = _currencyPrefix(context);
     return BlocListener<AssetFormCubit, AssetFormState>(
       listener: (context, state) {
         if (state.isSaved) context.pop();
@@ -220,15 +232,17 @@ class _AddEditAssetViewState extends State<_AddEditAssetView> {
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
-                  controller: _investedCtrl,
+                  controller: _ppuCtrl,
                   decoration: InputDecoration(
-                    labelText: '${l.totalInvestedAmount} *',
+                    labelText: l.pricePerUnit,
+                    prefixText: '$prefix ',
                   ),
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [ThousandSeparatorFormatter()],
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) return l.fieldRequired;
-                    if (!v.trim().isValidPositiveNumber) {
+                    if (!v.trim().replaceAll(',', '').isValidPositiveNumber) {
                       return l.validationPositiveNumber;
                     }
                     return null;
@@ -237,45 +251,44 @@ class _AddEditAssetViewState extends State<_AddEditAssetView> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _quantityCtrl,
-                  decoration: InputDecoration(labelText: l.quantityOptional),
+                  decoration: InputDecoration(labelText: l.quantityRequired),
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [ThousandSeparatorFormatter()],
                   validator: (v) {
-                    if (v == null || v.trim().isEmpty) return null;
-                    if (!v.trim().isValidPositiveNumber) {
+                    if (v == null || v.trim().isEmpty) return l.fieldRequired;
+                    if (!v.trim().replaceAll(',', '').isValidPositiveNumber) {
                       return l.validationPositiveNumber;
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 12),
-                TextFormField(
-                  controller: _ppuCtrl,
-                  decoration: InputDecoration(
-                    labelText: l.pricePerUnitOptional,
+                if (_calculatedTotal != null)
+                  InputDecorator(
+                    decoration: InputDecoration(
+                      labelText: l.totalInvestedCalculated,
+                      filled: true,
+                    ),
+                    child: Text(
+                      _calculatedTotal!.toStringAsFixed(2),
+                      style: context.textTheme.bodyLarge,
+                    ),
                   ),
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                  validator: (v) {
-                    if (v == null || v.trim().isEmpty) return null;
-                    if (!v.trim().isValidPositiveNumber) {
-                      return l.validationPositiveNumber;
-                    }
-                    return null;
-                  },
-                ),
                 const SizedBox(height: 12),
                 TextFormField(
-                  controller: _currentValueCtrl,
+                  controller: _currentPpuCtrl,
                   decoration: InputDecoration(
-                    labelText: l.currentValueOptional,
+                    labelText: l.currentPricePerUnit,
                     helperText: l.leaveBlankHint,
+                    prefixText: '$prefix ',
                   ),
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [ThousandSeparatorFormatter()],
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) return null;
-                    if (!v.trim().isValidPositiveNumber) {
+                    if (!v.trim().replaceAll(',', '').isValidPositiveNumber) {
                       return l.validationPositiveNumber;
                     }
                     return null;

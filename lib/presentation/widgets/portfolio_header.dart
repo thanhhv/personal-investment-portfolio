@@ -4,6 +4,8 @@ import 'package:wealth_lens/core/theme/app_colors.dart';
 import 'package:wealth_lens/core/theme/app_text_styles.dart';
 import 'package:wealth_lens/core/utils/currency_formatter.dart';
 
+const _kMasked = '•••';
+
 class PortfolioHeader extends StatelessWidget {
   const PortfolioHeader({
     required this.totalValue,
@@ -12,6 +14,7 @@ class PortfolioHeader extends StatelessWidget {
     required this.profitLossPercent,
     required this.currency,
     required this.rate,
+    required this.isHidden,
     super.key,
   });
 
@@ -21,6 +24,7 @@ class PortfolioHeader extends StatelessWidget {
   final double profitLossPercent;
   final AppCurrency currency;
   final double rate;
+  final bool isHidden;
 
   @override
   Widget build(BuildContext context) {
@@ -51,25 +55,34 @@ class PortfolioHeader extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          TweenAnimationBuilder<double>(
-            tween: Tween(begin: 0, end: totalValue),
-            duration: const Duration(milliseconds: 800),
-            curve: Curves.easeOut,
-            builder: (context, value, _) => Text(
-              CurrencyFormatter.format(value, currency, rate: rate),
+          if (isHidden)
+            Text(
+              _kMasked,
               style: AppTextStyles.portfolioTotal.copyWith(color: Colors.white),
+            )
+          else
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: totalValue),
+              duration: const Duration(milliseconds: 800),
+              curve: Curves.easeOut,
+              builder: (context, value, _) => Text(
+                CurrencyFormatter.format(value, currency, rate: rate),
+                style:
+                    AppTextStyles.portfolioTotal.copyWith(color: Colors.white),
+              ),
             ),
-          ),
           const SizedBox(height: 16),
           Row(
             children: [
               _StatChip(
                 label: context.l10n.invested,
-                value: CurrencyFormatter.formatCompact(
-                  totalInvested,
-                  currency,
-                  rate: rate,
-                ),
+                value: isHidden
+                    ? _kMasked
+                    : CurrencyFormatter.formatCompact(
+                        totalInvested,
+                        currency,
+                        rate: rate,
+                      ),
               ),
               const SizedBox(width: 8),
               _ProfitLossChip(
@@ -78,6 +91,7 @@ class PortfolioHeader extends StatelessWidget {
                 currency: currency,
                 rate: rate,
                 isProfit: isProfit,
+                isHidden: isHidden,
               ),
             ],
           ),
@@ -130,6 +144,7 @@ class _ProfitLossChip extends StatelessWidget {
     required this.currency,
     required this.rate,
     required this.isProfit,
+    required this.isHidden,
   });
 
   final double profitLoss;
@@ -137,6 +152,7 @@ class _ProfitLossChip extends StatelessWidget {
   final AppCurrency currency;
   final double rate;
   final bool isProfit;
+  final bool isHidden;
 
   @override
   Widget build(BuildContext context) {
@@ -165,8 +181,10 @@ class _ProfitLossChip extends StatelessWidget {
                     ),
               ),
               Text(
-                '${CurrencyFormatter.formatCompact(profitLoss.abs(), currency, rate: rate)} '
-                '(${CurrencyFormatter.formatPercent(percent)})',
+                isHidden
+                    ? _kMasked
+                    : '${CurrencyFormatter.formatCompact(profitLoss.abs(), currency, rate: rate)} '
+                        '(${CurrencyFormatter.formatPercent(percent)})',
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w700,

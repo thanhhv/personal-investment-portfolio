@@ -5,11 +5,14 @@ import 'package:wealth_lens/core/theme/app_text_styles.dart';
 import 'package:wealth_lens/core/utils/currency_formatter.dart';
 import 'package:wealth_lens/domain/entities/asset.dart';
 
+const _kMasked = '•••';
+
 class AssetCard extends StatelessWidget {
   const AssetCard({
     required this.asset,
     required this.currency,
     required this.rate,
+    required this.isHidden,
     this.onTap,
     super.key,
   });
@@ -17,6 +20,7 @@ class AssetCard extends StatelessWidget {
   final Asset asset;
   final AppCurrency currency;
   final double rate;
+  final bool isHidden;
   final VoidCallback? onTap;
 
   @override
@@ -77,13 +81,18 @@ class AssetCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      CurrencyFormatter.format(asset.currentValue, currency, rate: rate),
+                      isHidden
+                          ? _kMasked
+                          : CurrencyFormatter.format(
+                              asset.currentValue, currency,
+                              rate: rate,),
                       style: context.textTheme.titleMedium,
                     ),
                     const SizedBox(height: 4),
                     _ProfitLossBadge(
                       percent: asset.profitLossPercent,
                       isProfit: isProfit,
+                      isHidden: isHidden,
                     ),
                   ],
                 ),
@@ -123,10 +132,12 @@ class _ProfitLossBadge extends StatelessWidget {
   const _ProfitLossBadge({
     required this.percent,
     required this.isProfit,
+    required this.isHidden,
   });
 
   final double percent;
   final bool isProfit;
+  final bool isHidden;
 
   @override
   Widget build(BuildContext context) {
@@ -138,7 +149,7 @@ class _ProfitLossBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
-        CurrencyFormatter.formatPercent(percent),
+        isHidden ? _kMasked : CurrencyFormatter.formatPercent(percent),
         style: AppTextStyles.percentageBadge.copyWith(color: color),
       ),
     );

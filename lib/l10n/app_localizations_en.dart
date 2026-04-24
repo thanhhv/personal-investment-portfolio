@@ -359,13 +359,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quantityOptional => 'Quantity (optional)';
 
   @override
+  String get quantityRequired => 'Quantity *';
+
+  @override
   String get pricePerUnitOptional => 'Price per Unit (optional)';
+
+  @override
+  String get pricePerUnit => 'Price per Unit *';
 
   @override
   String get currentValueOptional => 'Current Value (optional)';
 
   @override
-  String get leaveBlankHint => 'Leave blank if same as invested';
+  String get currentPricePerUnit => 'Current Price per Unit (optional)';
+
+  @override
+  String get totalInvestedCalculated => 'Total Invested (auto)';
+
+  @override
+  String get leaveBlankHint => 'Leave blank if unknown';
 
   @override
   String get notesOptional => 'Notes (optional)';
@@ -384,6 +396,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noteOptional => 'Note (optional)';
+
+  @override
+  String get sellExceedsValue => 'Sell amount exceeds current asset value';
 
   @override
   String get deleteTransaction => 'Delete Transaction';

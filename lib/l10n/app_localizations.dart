@@ -752,11 +752,23 @@ abstract class AppLocalizations {
   /// **'Quantity (optional)'**
   String get quantityOptional;
 
+  /// No description provided for @quantityRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity *'**
+  String get quantityRequired;
+
   /// No description provided for @pricePerUnitOptional.
   ///
   /// In en, this message translates to:
   /// **'Price per Unit (optional)'**
   String get pricePerUnitOptional;
+
+  /// No description provided for @pricePerUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Price per Unit *'**
+  String get pricePerUnit;
 
   /// No description provided for @currentValueOptional.
   ///
@@ -764,10 +776,22 @@ abstract class AppLocalizations {
   /// **'Current Value (optional)'**
   String get currentValueOptional;
 
+  /// No description provided for @currentPricePerUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Price per Unit (optional)'**
+  String get currentPricePerUnit;
+
+  /// No description provided for @totalInvestedCalculated.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Invested (auto)'**
+  String get totalInvestedCalculated;
+
   /// No description provided for @leaveBlankHint.
   ///
   /// In en, this message translates to:
-  /// **'Leave blank if same as invested'**
+  /// **'Leave blank if unknown'**
   String get leaveBlankHint;
 
   /// No description provided for @notesOptional.
@@ -805,6 +829,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Note (optional)'**
   String get noteOptional;
+
+  /// No description provided for @sellExceedsValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell amount exceeds current asset value'**
+  String get sellExceedsValue;
 
   /// No description provided for @deleteTransaction.
   ///

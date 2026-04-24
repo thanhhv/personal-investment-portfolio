@@ -10,6 +10,7 @@ import 'package:wealth_lens/core/utils/date_formatter.dart';
 import 'package:wealth_lens/domain/entities/asset.dart';
 import 'package:wealth_lens/presentation/blocs/analytics/analytics_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/analytics/analytics_state.dart';
+import 'package:wealth_lens/presentation/blocs/balance_visibility/balance_visibility_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/currency/currency_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/exchange_rate/exchange_rate_cubit.dart';
 
@@ -117,6 +118,8 @@ class _AnalyticsBody extends StatelessWidget {
   }
 }
 
+const _kMasked = '•••';
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Summary Card
 // ─────────────────────────────────────────────────────────────────────────────
@@ -137,6 +140,7 @@ class _SummaryCard extends StatelessWidget {
     final l = context.l10n;
     final currency = context.read<CurrencyCubit>().state;
     final rate = context.read<ExchangeRateCubit>().state;
+    final isHidden = !context.watch<BalanceVisibilityCubit>().state;
 
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
@@ -163,7 +167,10 @@ class _SummaryCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            CurrencyFormatter.format(data.totalValue, currency, rate: rate),
+            isHidden
+                ? _kMasked
+                : CurrencyFormatter.format(data.totalValue, currency,
+                    rate: rate,),
             style: AppTextStyles.portfolioTotal.copyWith(color: Colors.white),
           ),
           const SizedBox(height: 12),
@@ -171,18 +178,18 @@ class _SummaryCard extends StatelessWidget {
             children: [
               _SummaryChip(
                 label: l.invested,
-                value: CurrencyFormatter.formatCompact(
-                  data.totalInvested,
-                  currency,
-                  rate: rate,
-                ),
+                value: isHidden
+                    ? _kMasked
+                    : CurrencyFormatter.formatCompact(
+                        data.totalInvested, currency, rate: rate,),
               ),
               const SizedBox(width: 8),
               _SummaryChip(
                 label: isProfit ? l.gain : l.loss,
-                value:
-                    '${CurrencyFormatter.formatCompact(data.totalProfitLoss.abs(), currency, rate: rate)}'
-                    ' (${CurrencyFormatter.formatPercent(data.totalProfitLossPercent)})',
+                value: isHidden
+                    ? _kMasked
+                    : '${CurrencyFormatter.formatCompact(data.totalProfitLoss.abs(), currency, rate: rate)}'
+                        ' (${CurrencyFormatter.formatPercent(data.totalProfitLossPercent)})',
                 icon: isProfit
                     ? Icons.trending_up_rounded
                     : Icons.trending_down_rounded,
@@ -258,6 +265,7 @@ class _PerformanceChart extends StatelessWidget {
     final l = context.l10n;
     final currency = context.read<CurrencyCubit>().state;
     final rate = context.read<ExchangeRateCubit>().state;
+    final isHidden = !context.watch<BalanceVisibilityCubit>().state;
     final timeline = data.timeline;
     final investedSpots = timeline.asMap().entries.map((e) {
       return FlSpot(e.key.toDouble(), e.value.totalInvested);
@@ -335,7 +343,10 @@ class _PerformanceChart extends StatelessWidget {
                           idx < timeline.length ? timeline[idx] : null;
                       return LineTooltipItem(
                         point != null
-                            ? CurrencyFormatter.format(s.y, currency, rate: rate)
+                            ? (isHidden
+                                ? _kMasked
+                                : CurrencyFormatter.format(s.y, currency,
+                                    rate: rate,))
                             : '',
                         context.textTheme.labelSmall!
                             .copyWith(color: Colors.white),
@@ -415,6 +426,7 @@ class _RankingSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final currency = context.read<CurrencyCubit>().state;
     final rate = context.read<ExchangeRateCubit>().state;
+    final isHidden = !context.watch<BalanceVisibilityCubit>().state;
 
     return _ChartCard(
       title: title,
@@ -451,7 +463,10 @@ class _RankingSection extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
-                        CurrencyFormatter.format(asset.currentValue, currency, rate: rate),
+                        isHidden
+                            ? _kMasked
+                            : CurrencyFormatter.format(asset.currentValue,
+                                currency, rate: rate,),
                         style: context.textTheme.bodySmall?.copyWith(
                           color: context.colorScheme.onSurface
                               .withValues(alpha: 0.55),
@@ -468,7 +483,10 @@ class _RankingSection extends StatelessWidget {
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    CurrencyFormatter.formatPercent(asset.profitLossPercent),
+                    isHidden
+                        ? _kMasked
+                        : CurrencyFormatter.formatPercent(
+                            asset.profitLossPercent,),
                     style: AppTextStyles.percentageBadge.copyWith(color: color),
                   ),
                 ),
@@ -571,6 +589,7 @@ class _CategoryRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final currency = context.read<CurrencyCubit>().state;
     final rate = context.read<ExchangeRateCubit>().state;
+    final isHidden = !context.watch<BalanceVisibilityCubit>().state;
     final isProfit = item.profitLoss >= 0;
     final plColor = isProfit ? AppColors.profit : AppColors.loss;
 
@@ -609,7 +628,10 @@ class _CategoryRow extends StatelessWidget {
           Expanded(
             flex: 3,
             child: Text(
-              CurrencyFormatter.formatCompact(item.totalValue, currency, rate: rate),
+              isHidden
+                  ? _kMasked
+                  : CurrencyFormatter.formatCompact(item.totalValue, currency,
+                      rate: rate,),
               style: context.textTheme.bodySmall,
               textAlign: TextAlign.end,
             ),
@@ -625,7 +647,9 @@ class _CategoryRow extends StatelessWidget {
           Expanded(
             flex: 2,
             child: Text(
-              CurrencyFormatter.formatPercent(item.profitLossPercent),
+              isHidden
+                  ? _kMasked
+                  : CurrencyFormatter.formatPercent(item.profitLossPercent),
               style: context.textTheme.bodySmall?.copyWith(color: plColor),
               textAlign: TextAlign.end,
             ),
