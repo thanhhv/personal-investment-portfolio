@@ -125,6 +125,12 @@
   "exportSubtitle": "Chia sẻ dạng .wealthlens.json",
   "importSubtitle": "Tải từ file .wealthlens.json",
 
+  "exportInfoTitle": "Xuất danh mục",
+  "exportInfoBody": "Toàn bộ danh mục đầu tư của bạn sẽ được lưu thành file .wealthlens.json. Bạn có thể chia sẻ, lưu vào máy, hoặc gửi sang thiết bị khác để khôi phục dữ liệu.",
+  "importInfoTitle": "Nhập danh mục",
+  "importInfoBody": "Chọn file .wealthlens.json để nhập danh mục đầu tư.\n\nLưu ý: việc nhập sẽ xóa toàn bộ dữ liệu hiện tại và thay bằng dữ liệu từ file. Hãy đảm bảo bạn đã sao lưu trước khi tiếp tục.",
+  "proceedButton": "Tiếp tục",
+
   "importFoundAssets": "Tìm thấy {count} tài sản",
   "@importFoundAssets": { "placeholders": { "count": { "type": "int" } } },
   "importNewCount": "{count} mới",
@@ -155,6 +161,11 @@
   "sellExceedsValue": "Giá trị bán vượt quá giá trị tài sản hiện tại",
   "deleteTransaction": "Xóa giao dịch",
   "cannotBeUndone": "Hành động này không thể hoàn tác.",
+
+  "updatePrice": "Cập nhật giá",
+  "newCurrentValue": "Giá trị hiện tại mới",
+  "currentPricePerUnitRequired": "Giá hiện tại mỗi đơn vị *",
+  "totalQuantityLabel": "Tổng số lượng (đã theo dõi)",
 
   "exchangeRate": "Tỷ giá hối đoái",
   "exchangeRateHint": "ví dụ: 25000",

@@ -20,6 +20,7 @@ import 'package:wealth_lens/presentation/blocs/currency/currency_cubit.dart';
 import 'package:wealth_lens/presentation/blocs/exchange_rate/exchange_rate_cubit.dart';
 import 'package:wealth_lens/presentation/routes/app_router.dart';
 import 'package:wealth_lens/presentation/widgets/add_transaction_bottom_sheet.dart';
+import 'package:wealth_lens/presentation/widgets/update_price_bottom_sheet.dart';
 
 class AssetDetailScreen extends StatelessWidget {
   const AssetDetailScreen({required this.assetId, super.key});
@@ -132,6 +133,15 @@ class _AssetDetailContent extends StatelessWidget {
         title: Text(asset.name),
         actions: [
           IconButton(
+            icon: const Icon(Icons.price_change_outlined),
+            onPressed: () => UpdatePriceBottomSheet.show(
+              context,
+              asset: asset,
+              onUpdated: () =>
+                  context.read<AssetDetailCubit>().load(assetId),
+            ),
+          ),
+          IconButton(
             icon: const Icon(Icons.edit_outlined),
             onPressed: () async {
               await context.push(
@@ -158,6 +168,9 @@ class _AssetDetailContent extends StatelessWidget {
               isHidden: isHidden,),
           if (sortedHistory.length >= 2)
             _PriceChart(history: sortedHistory),
+          if ((asset.notes != null && asset.notes!.isNotEmpty) ||
+              asset.tags.isNotEmpty)
+            _NotesTagsSection(asset: asset),
           _TransactionsSection(
             assetId: assetId,
             transactions: sortedTx,
@@ -395,6 +408,63 @@ class _PriceChart extends StatelessWidget {
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _NotesTagsSection extends StatelessWidget {
+  const _NotesTagsSection({required this.asset});
+
+  final Asset asset;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: context.isDark ? AppColors.cardDark : AppColors.cardLight,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (asset.notes != null && asset.notes!.isNotEmpty) ...[
+            Text(
+              l.notes,
+              style: context.textTheme.labelMedium?.copyWith(
+                color: context.colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(asset.notes!, style: context.textTheme.bodyMedium),
+            if (asset.tags.isNotEmpty) const SizedBox(height: 12),
+          ],
+          if (asset.tags.isNotEmpty) ...[
+            Text(
+              l.tags,
+              style: context.textTheme.labelMedium?.copyWith(
+                color: context.colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Wrap(
+              spacing: 6,
+              runSpacing: 4,
+              children: asset.tags
+                  .map(
+                    (tag) => Chip(
+                      label: Text(tag, style: context.textTheme.labelSmall),
+                      padding: EdgeInsets.zero,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                  )
+                  .toList(),
+            ),
+          ],
         ],
       ),
     );

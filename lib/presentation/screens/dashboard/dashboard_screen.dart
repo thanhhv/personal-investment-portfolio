@@ -21,6 +21,7 @@ import 'package:wealth_lens/presentation/widgets/asset_card.dart';
 import 'package:wealth_lens/presentation/widgets/category_donut_chart.dart';
 import 'package:wealth_lens/presentation/widgets/portfolio_header.dart';
 import 'package:wealth_lens/presentation/widgets/shimmer_asset_card.dart';
+import 'package:wealth_lens/presentation/widgets/update_price_bottom_sheet.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -256,6 +257,29 @@ class _AssetListViewState extends State<_AssetListView> {
                 child: FadeInAnimation(
                   child: Slidable(
                     key: ValueKey(asset.id),
+                    startActionPane: ActionPane(
+                      motion: const DrawerMotion(),
+                      extentRatio: 0.22,
+                      children: [
+                        CustomSlidableAction(
+                          onPressed: (_) => UpdatePriceBottomSheet.show(
+                            context,
+                            asset: asset,
+                            onUpdated: () =>
+                                context.read<DashboardCubit>().load(),
+                          ),
+                          backgroundColor: AppColors.secondary,
+                          foregroundColor: Colors.white,
+                          borderRadius: const BorderRadius.horizontal(
+                            left: Radius.circular(16),
+                          ),
+                          child: const Icon(
+                            Icons.price_change_outlined,
+                            size: 26,
+                          ),
+                        ),
+                      ],
+                    ),
                     endActionPane: ActionPane(
                       motion: const DrawerMotion(),
                       extentRatio: 0.22,

@@ -317,6 +317,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get importSubtitle => 'Load from .wealthlens.json';
 
   @override
+  String get exportInfoTitle => 'Export Portfolio';
+
+  @override
+  String get exportInfoBody =>
+      'Your portfolio will be saved as a .wealthlens.json file. You can share it, save it to your files, or send it to another device to restore your data.';
+
+  @override
+  String get importInfoTitle => 'Import Portfolio';
+
+  @override
+  String get importInfoBody =>
+      'Select a .wealthlens.json file to import your portfolio.\n\nWarning: importing will delete all your current data and replace it with the data from the file. Make sure you have a backup before continuing.';
+
+  @override
+  String get proceedButton => 'Continue';
+
+  @override
   String importFoundAssets(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -405,6 +422,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cannotBeUndone => 'This cannot be undone.';
+
+  @override
+  String get updatePrice => 'Update Price';
+
+  @override
+  String get newCurrentValue => 'New Current Value';
+
+  @override
+  String get currentPricePerUnitRequired => 'Current Price per Unit *';
+
+  @override
+  String get totalQuantityLabel => 'Total Quantity (tracked)';
 
   @override
   String get exchangeRate => 'Exchange Rate';

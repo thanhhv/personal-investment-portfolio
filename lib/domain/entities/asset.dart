@@ -44,4 +44,17 @@ class Asset with _$Asset {
 
   double get profitLossPercent =>
       totalInvested == 0 ? 0 : (profitLoss / totalInvested) * 100;
+
+  double get totalQuantity {
+    final bought = transactions
+        .where((t) => t.type == TransactionType.buy && t.quantity != null)
+        .fold<double>(0, (sum, t) => sum + t.quantity!);
+    final sold = transactions
+        .where((t) => t.type == TransactionType.sell && t.quantity != null)
+        .fold<double>(0, (sum, t) => sum + t.quantity!);
+    return (bought - sold).clamp(0, double.infinity);
+  }
+
+  bool get hasQuantityTracking =>
+      transactions.any((t) => t.quantity != null);
 }

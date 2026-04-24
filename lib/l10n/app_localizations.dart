@@ -692,6 +692,36 @@ abstract class AppLocalizations {
   /// **'Load from .wealthlens.json'**
   String get importSubtitle;
 
+  /// No description provided for @exportInfoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Export Portfolio'**
+  String get exportInfoTitle;
+
+  /// No description provided for @exportInfoBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your portfolio will be saved as a .wealthlens.json file. You can share it, save it to your files, or send it to another device to restore your data.'**
+  String get exportInfoBody;
+
+  /// No description provided for @importInfoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Import Portfolio'**
+  String get importInfoTitle;
+
+  /// No description provided for @importInfoBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a .wealthlens.json file to import your portfolio.\n\nWarning: importing will delete all your current data and replace it with the data from the file. Make sure you have a backup before continuing.'**
+  String get importInfoBody;
+
+  /// No description provided for @proceedButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get proceedButton;
+
   /// No description provided for @importFoundAssets.
   ///
   /// In en, this message translates to:
@@ -847,6 +877,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This cannot be undone.'**
   String get cannotBeUndone;
+
+  /// No description provided for @updatePrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Price'**
+  String get updatePrice;
+
+  /// No description provided for @newCurrentValue.
+  ///
+  /// In en, this message translates to:
+  /// **'New Current Value'**
+  String get newCurrentValue;
+
+  /// No description provided for @currentPricePerUnitRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Price per Unit *'**
+  String get currentPricePerUnitRequired;
+
+  /// No description provided for @totalQuantityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Quantity (tracked)'**
+  String get totalQuantityLabel;
 
   /// No description provided for @exchangeRate.
   ///

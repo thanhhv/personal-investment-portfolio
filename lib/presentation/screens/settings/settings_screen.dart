@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wealth_lens/core/di/injection.dart';
@@ -22,6 +24,36 @@ class SettingsScreen extends StatelessWidget {
       child: const _SettingsView(),
     );
   }
+}
+
+Future<bool> _showInfoDialog(
+  BuildContext context, {
+  required String title,
+  required String body,
+  required String proceedLabel,
+  Color? proceedColor,
+}) async {
+  return await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(title),
+          content: Text(body),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text(context.l10n.cancel),
+            ),
+            FilledButton(
+              style: proceedColor != null
+                  ? FilledButton.styleFrom(backgroundColor: proceedColor)
+                  : null,
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: Text(proceedLabel),
+            ),
+          ],
+        ),
+      ) ??
+      false;
 }
 
 class _SettingsView extends StatelessWidget {
@@ -96,14 +128,24 @@ class _SettingsView extends StatelessWidget {
                       : const Icon(Icons.chevron_right),
                   onTap: state.isBusy
                       ? null
-                      : () {
+                      : () async {
+                          final l = context.l10n;
+                          final confirmed = await _showInfoDialog(
+                            context,
+                            title: l.exportInfoTitle,
+                            body: l.exportInfoBody,
+                            proceedLabel: l.proceedButton,
+                          );
+                          if (!confirmed || !context.mounted) return;
                           final box =
                               tileContext.findRenderObject()! as RenderBox;
                           final rect =
                               box.localToGlobal(Offset.zero) & box.size;
-                          context
-                              .read<SettingsCubit>()
-                              .exportPortfolio(sharePositionOrigin: rect);
+                          unawaited(
+                            context
+                                .read<SettingsCubit>()
+                                .exportPortfolio(sharePositionOrigin: rect),
+                          );
                         },
                 ),
               ),
@@ -120,7 +162,18 @@ class _SettingsView extends StatelessWidget {
                     : const Icon(Icons.chevron_right),
                 onTap: state.isBusy
                     ? null
-                    : () => context.read<SettingsCubit>().pickImportFile(),
+                    : () async {
+                        final l = context.l10n;
+                        final confirmed = await _showInfoDialog(
+                          context,
+                          title: l.importInfoTitle,
+                          body: l.importInfoBody,
+                          proceedLabel: l.proceedButton,
+                          proceedColor: AppColors.loss,
+                        );
+                        if (!confirmed || !context.mounted) return;
+                        unawaited(context.read<SettingsCubit>().pickImportFile());
+                      },
               ),
               const Divider(),
               _SectionHeader(label: context.l10n.appearance),

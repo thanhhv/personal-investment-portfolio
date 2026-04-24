@@ -8,6 +8,7 @@ import 'package:wealth_lens/core/extensions/string_extensions.dart';
 import 'package:wealth_lens/core/theme/app_colors.dart';
 import 'package:wealth_lens/core/utils/currency_formatter.dart';
 import 'package:wealth_lens/core/utils/date_formatter.dart';
+import 'package:wealth_lens/core/utils/decimal_input_formatter.dart';
 import 'package:wealth_lens/core/utils/thousand_separator_formatter.dart';
 import 'package:wealth_lens/domain/entities/asset.dart';
 import 'package:wealth_lens/domain/entities/price_point.dart';
@@ -99,7 +100,7 @@ class _AddEditAssetViewState extends State<_AddEditAssetView> {
 
   double? get _calculatedTotal {
     final ppu = double.tryParse(_ppuCtrl.text.replaceAll(',', ''));
-    final qty = double.tryParse(_quantityCtrl.text.replaceAll(',', ''));
+    final qty = double.tryParse(_quantityCtrl.text);
     if (ppu != null && qty != null && ppu > 0 && qty > 0) return ppu * qty;
     return null;
   }
@@ -124,7 +125,7 @@ class _AddEditAssetViewState extends State<_AddEditAssetView> {
     final ppuRaw = double.parse(_ppuCtrl.text.replaceAll(',', ''));
     final ppuStored =
         currency == AppCurrency.vnd ? ppuRaw / rate : ppuRaw;
-    final qty = double.parse(_quantityCtrl.text.replaceAll(',', ''));
+    final qty = double.parse(_quantityCtrl.text);
     final amount = ppuStored * qty;
     final currentPpuRaw = _currentPpuCtrl.text.trim().isEmpty
         ? null
@@ -254,10 +255,10 @@ class _AddEditAssetViewState extends State<_AddEditAssetView> {
                   decoration: InputDecoration(labelText: l.quantityRequired),
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
-                  inputFormatters: [ThousandSeparatorFormatter()],
+                  inputFormatters: [DecimalInputFormatter()],
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) return l.fieldRequired;
-                    if (!v.trim().replaceAll(',', '').isValidPositiveNumber) {
+                    if (!v.trim().isValidPositiveNumber) {
                       return l.validationPositiveNumber;
                     }
                     return null;

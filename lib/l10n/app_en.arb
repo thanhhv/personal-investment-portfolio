@@ -127,6 +127,12 @@
   "exportSubtitle": "Share as .wealthlens.json",
   "importSubtitle": "Load from .wealthlens.json",
 
+  "exportInfoTitle": "Export Portfolio",
+  "exportInfoBody": "Your portfolio will be saved as a .wealthlens.json file. You can share it, save it to your files, or send it to another device to restore your data.",
+  "importInfoTitle": "Import Portfolio",
+  "importInfoBody": "Select a .wealthlens.json file to import your portfolio.\n\nWarning: importing will delete all your current data and replace it with the data from the file. Make sure you have a backup before continuing.",
+  "proceedButton": "Continue",
+
   "importFoundAssets": "{count, plural, one {Found 1 asset} other {Found {count} assets}}",
   "@importFoundAssets": { "placeholders": { "count": { "type": "int" } } },
   "importNewCount": "{count} new",
@@ -157,6 +163,11 @@
   "sellExceedsValue": "Sell amount exceeds current asset value",
   "deleteTransaction": "Delete Transaction",
   "cannotBeUndone": "This cannot be undone.",
+
+  "updatePrice": "Update Price",
+  "newCurrentValue": "New Current Value",
+  "currentPricePerUnitRequired": "Current Price per Unit *",
+  "totalQuantityLabel": "Total Quantity (tracked)",
 
   "exchangeRate": "Exchange Rate",
   "exchangeRateHint": "e.g. 25000",

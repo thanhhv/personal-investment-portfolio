@@ -311,6 +311,23 @@ class AppLocalizationsVi extends AppLocalizations {
   String get importSubtitle => 'Tải từ file .wealthlens.json';
 
   @override
+  String get exportInfoTitle => 'Xuất danh mục';
+
+  @override
+  String get exportInfoBody =>
+      'Toàn bộ danh mục đầu tư của bạn sẽ được lưu thành file .wealthlens.json. Bạn có thể chia sẻ, lưu vào máy, hoặc gửi sang thiết bị khác để khôi phục dữ liệu.';
+
+  @override
+  String get importInfoTitle => 'Nhập danh mục';
+
+  @override
+  String get importInfoBody =>
+      'Chọn file .wealthlens.json để nhập danh mục đầu tư.\n\nLưu ý: việc nhập sẽ xóa toàn bộ dữ liệu hiện tại và thay bằng dữ liệu từ file. Hãy đảm bảo bạn đã sao lưu trước khi tiếp tục.';
+
+  @override
+  String get proceedButton => 'Tiếp tục';
+
+  @override
   String importFoundAssets(int count) {
     return 'Tìm thấy $count tài sản';
   }
@@ -394,6 +411,18 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get cannotBeUndone => 'Hành động này không thể hoàn tác.';
+
+  @override
+  String get updatePrice => 'Cập nhật giá';
+
+  @override
+  String get newCurrentValue => 'Giá trị hiện tại mới';
+
+  @override
+  String get currentPricePerUnitRequired => 'Giá hiện tại mỗi đơn vị *';
+
+  @override
+  String get totalQuantityLabel => 'Tổng số lượng (đã theo dõi)';
 
   @override
   String get exchangeRate => 'Tỷ giá hối đoái';

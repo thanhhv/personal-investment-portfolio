@@ -69,7 +69,7 @@ class ImportPortfolioUseCase {
       final bytes = picked.bytes;
       final path = picked.path;
       if (bytes != null) {
-        content = String.fromCharCodes(bytes);
+        content = utf8.decode(bytes);
       } else if (path != null) {
         content = await File(path).readAsString();
       } else {

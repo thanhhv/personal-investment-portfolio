@@ -6,6 +6,7 @@ import 'package:wealth_lens/core/extensions/context_extensions.dart';
 import 'package:wealth_lens/core/extensions/string_extensions.dart';
 import 'package:wealth_lens/core/utils/currency_formatter.dart';
 import 'package:wealth_lens/core/utils/date_formatter.dart';
+import 'package:wealth_lens/core/utils/decimal_input_formatter.dart';
 import 'package:wealth_lens/core/utils/thousand_separator_formatter.dart';
 import 'package:wealth_lens/domain/entities/asset.dart';
 import 'package:wealth_lens/domain/entities/price_point.dart';
@@ -81,7 +82,7 @@ class _AddTransactionBottomSheetState
 
   double? get _calculatedTotal {
     final ppu = double.tryParse(_ppuCtrl.text.replaceAll(',', ''));
-    final qty = double.tryParse(_quantityCtrl.text.replaceAll(',', ''));
+    final qty = double.tryParse(_quantityCtrl.text);
     if (ppu != null && qty != null && ppu > 0 && qty > 0) return ppu * qty;
     return null;
   }
@@ -104,7 +105,7 @@ class _AddTransactionBottomSheetState
     final ppuStored = widget.currency == AppCurrency.vnd
         ? ppuRaw / widget.rate
         : ppuRaw;
-    final qty = double.parse(_quantityCtrl.text.replaceAll(',', ''));
+    final qty = double.parse(_quantityCtrl.text);
     final total = ppuStored * qty;
 
     final tx = Transaction(
@@ -254,10 +255,10 @@ class _AddTransactionBottomSheetState
               controller: _quantityCtrl,
               decoration: InputDecoration(labelText: l.quantityRequired),
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              inputFormatters: [ThousandSeparatorFormatter()],
+              inputFormatters: [DecimalInputFormatter()],
               validator: (v) {
                 if (v == null || v.trim().isEmpty) return l.fieldRequired;
-                if (!v.trim().replaceAll(',', '').isValidPositiveNumber) {
+                if (!v.trim().isValidPositiveNumber) {
                   return l.validationPositiveNumber;
                 }
                 if (_type == TransactionType.sell) {
